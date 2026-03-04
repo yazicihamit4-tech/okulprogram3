@@ -1,0 +1,2092 @@
+<!doctype html>
+<html lang="tr"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Zübeyde Hanım İlkokulu | 2026 Kulüp Paneli</title>
+
+  <!-- Excel / Word Export Libs -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docx@7.5.0/build/index.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #f8fafc; --surface: #ffffff;
+      --primary: #4f46e5; --primary-hover: #4338ca;
+      --text-main: #0f172a; --text-sub: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981; --danger: #ef4444; --warn: #f59e0b;
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 0 0 60px 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background-color: var(--bg); color: var(--text-main); }
+
+    header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 16px 32px; display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 20; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      gap: 18px;
+    }
+    .brand h1 { margin: 0; font-size: 22px; color: var(--primary); letter-spacing: -0.5px; }
+    .brand span { font-size: 13px; color: var(--text-sub); }
+
+    .header-stats { display: flex; gap: 22px; align-items: center; }
+    .stat-pill { display: flex; flex-direction: column; align-items: flex-end; min-width: 120px; }
+    .stat-val { font-size: 18px; font-weight: 900; line-height: 1.1; }
+    .stat-lbl { font-size: 11px; color: var(--text-sub); text-transform: uppercase; font-weight: 700; }
+
+    .search-box {
+      background: #f1f5f9; border: 1px solid var(--border); border-radius: 99px;
+      padding: 10px 14px; display: flex; align-items: center; gap: 10px;
+      width: 380px; transition: all 0.2s;
+    }
+    .search-box:focus-within { background:white; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+    .search-box input { border: none; background: transparent; outline: none; width: 100%; font-size: 14px; }
+    .clear-btn{
+      border:none; background:#e2e8f0; color:#334155; border-radius: 10px;
+      padding: 6px 10px; cursor:pointer; font-weight: 900; font-size: 12px;
+    }
+    .clear-btn:hover{ background:#cbd5e1; }
+
+    .container {
+      max-width: 1600px; margin: 0 auto; padding: 24px;
+      display: grid; grid-template-columns: 280px 1fr; gap: 30px; align-items: start;
+    }
+    @media (max-width: 1100px) { .container { grid-template-columns: 1fr; } header{flex-wrap:wrap;} .search-box{width:100%;} }
+
+    .action-card {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 24px; text-align: center; box-shadow: var(--shadow);
+      position: sticky; top: 110px;
+    }
+    .big-btn {
+      background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+      color: white; border: none; width: 100%; padding: 18px;
+      border-radius: 16px; font-size: 16px; font-weight: 800; cursor: pointer;
+      box-shadow: 0 10px 20px -5px rgba(79,70,229,0.4);
+      transition: transform 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      margin-bottom: 24px;
+    }
+    .big-btn:hover { transform: translateY(-2px); }
+
+    .menu-list { display: grid; gap: 8px; }
+    .menu-btn {
+      background: white; border: 1px solid var(--border);
+      padding: 14px; border-radius: 12px; text-align: left;
+      color: var(--text-main); font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .menu-btn:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .menu-icon { font-size: 16px; width: 24px; text-align: center; }
+
+    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-bottom: 30px; }
+
+    .club-card {
+      background: var(--surface); border-radius: 16px;
+      padding: 16px; border: 1px solid var(--border);
+      display: flex; flex-direction: column; justify-content: space-between;
+      position: relative; overflow: hidden;
+      transition: all 0.2s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .club-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: var(--primary); }
+    .club-card h3 {
+      margin: 0 0 4px 0; font-size: 15px; font-weight: 900; color: var(--text-main);
+      cursor: pointer; user-select: none; display: flex; align-items: center; gap: 8px;
+    }
+    .club-card h3:hover { color: var(--primary); }
+    .caret {
+      width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 6px; border: 1px solid var(--border); background: #fff;
+      font-size: 12px; color: var(--text-sub); transition: transform .15s ease;
+    }
+    .club-card.expanded .caret { transform: rotate(90deg); }
+
+    .clubName{ font-weight: 900; color:#0f172a; }
+    .club-info { font-size: 12px; color: var(--text-sub); }
+    .club-stat {
+      align-self: flex-start; background: #f1f5f9; color: #334155;
+      padding: 6px 12px; border-radius: 99px; font-size: 13px; font-weight: 900; margin-top: auto;
+    }
+
+    .club-actions {
+      position: absolute; right: 12px; bottom: 12px; display: flex; gap: 6px;
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .club-card:hover .club-actions { opacity: 1; }
+    .icon-btn {
+      width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--border);
+      background: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: var(--text-sub); font-size: 11px; font-weight: 900;
+    }
+    .icon-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .club-students {
+      margin-top: 10px; border-top: 1px dashed var(--border);
+      padding-top: 10px; display: none; max-height: 260px; overflow: auto;
+    }
+    .club-card.expanded .club-students { display: block; }
+    .club-students .st {
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding: 8px 10px; border: 1px solid #eef2ff; background: #f8fafc;
+      border-radius: 12px; margin-bottom: 8px; font-size: 12.5px;
+    }
+    .club-students .st b { color:#1e293b; }
+    .club-students .st .sub { color: var(--text-sub); font-size: 11.5px; }
+
+    .table-card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+    .table-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .table-title { font-weight: 900; font-size: 16px; color: #1e293b; }
+
+    .table-responsive { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; padding: 14px 24px; background: #f8fafc; color: #475569; font-weight: 900; border-bottom: 1px solid var(--border); }
+    td { padding: 14px 24px; border-bottom: 1px solid var(--border); color: var(--text-main); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+
+    .badge { padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 900; display: inline-block; }
+    .badge-gray { background: #f1f5f9; color: #475569; }
+    .money { font-family: 'Consolas', monospace; font-weight: 900; font-size: 14px; }
+    .text-green { color: var(--success); }
+    .text-red { color: var(--danger); }
+    .btn-sm { padding: 6px 12px; border-radius: 10px; border: 1px solid var(--border); background: white; cursor: pointer; font-size: 12px; margin-right: 4px; font-weight: 800; }
+    .btn-sm:hover { background: #f1f5f9; }
+
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px);
+      z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-box {
+      background: white; width: 100%; max-width: 580px; border-radius: 20px; padding: 26px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .modal-title { font-size: 18px; font-weight: 900; color: #1e293b; }
+    .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: #94a3b8; line-height: 1; }
+    .close-btn:hover { color: #ef4444; }
+
+    .form-group { margin-bottom: 14px; }
+    label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 900; color: #475569; }
+    input, select { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; font-size: 14px; outline: none; transition: all 0.2s; background: #fff; }
+    input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+    .modal-footer { margin-top: 18px; display: flex; gap: 12px; justify-content: flex-end; }
+
+    .hamitFooter {
+      position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; color: white;
+      text-align: center; padding: 10px; font-size: 12px; z-index: 50; letter-spacing: 0.5px;
+    }
+    .hamitFooter span { opacity: 0.7; }
+
+    /* --- Ödeme durum renkleri --- */
+    tr.row-nopay td { background: #fff7ed; }      /* hiç ödeme */
+    tr.row-partial td { background: #fffbeb; }    /* kısmi */
+    tr.row-paid td { background: #ecfdf5; }       /* tam */
+    tr.row-free td { background: #f1f5f9; }       /* ücretsiz */
+
+    /* --- Sekmeler / filtreler --- */
+    .tabs { display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:flex-end; }
+    .tab-btn{
+      border:1px solid var(--border); background:#fff; color:#334155;
+      padding:8px 12px; border-radius: 999px; cursor:pointer;
+      font-weight: 900; font-size: 12px;
+    }
+    .tab-btn.active{ background: var(--primary); color:#fff; border-color: var(--primary); }
+    .filter-pill{
+      border:1px solid var(--border); background:#f1f5f9; color:#334155;
+      padding:8px 12px; border-radius: 999px; font-weight:900; font-size:12px;
+      display:inline-flex; gap:8px; align-items:center;
+    }
+    .filter-pill button{
+      border:none; background:#e2e8f0; border-radius:999px; padding:4px 8px; cursor:pointer; font-weight:900;
+    }
+    .filter-pill button:hover{ background:#cbd5e1; }
+
+    /* Dashboard kartlarında öğrenci listesini gizle (lobi listesi) */
+    .club-students { display:none !important; }
+
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">
+    <h1>Zübeyde Hanım İlkokulu</h1>
+    <span>2026 Kulüp Yönetim Paneli</span>
+  </div>
+
+  <div class="search-box">
+    <span style="opacity:0.5">🔍</span>
+    <input id="globalSearch" placeholder="Öğrenci adı, sınıf veya telefon...">
+    <button class="clear-btn" id="btnClearSearch" title="Aramayı temizle">X</button>
+  </div>
+
+  <div class="header-stats">
+    <div class="stat-pill">
+      <span class="stat-val" id="totalStudents">91</span>
+      <span class="stat-lbl">Öğrenci</span>
+    </div>
+    <div class="stat-pill">
+      <span class="stat-val text-green" id="totalMoney">0 TL</span>
+      <span class="stat-lbl">Kasa</span>
+    </div>
+    <div class="stat-pill">
+      <span class="stat-val text-red" id="totalDebt">1.020.096 TL</span>
+      <span class="stat-lbl">Alacak</span>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <aside>
+    <div class="action-card">
+      <button class="big-btn" id="btnOpenModal">
+        <span style="font-size:24px; font-weight:300;">+</span>
+        Yeni Öğrenci Ekle
+      </button>
+
+      <div class="menu-list">
+        <button class="menu-btn" id="btnTeachersWord">
+          <span class="menu-icon">📄</span> Öğretmen Listeleri (Word)
+        </button>
+        <button class="menu-btn" id="btnAdminWord">
+          <span class="menu-icon">🧾</span> İdare Listeleri (Word)
+        </button>
+        <button class="menu-btn" id="btnAllExcel">
+          <span class="menu-icon">📊</span> İdare Listeleri (Excel)
+        </button>
+
+        <div style="height:1px; background:#e2e8f0; margin:10px 0;"></div>
+
+        <!-- ✅ Personel/Maaş Yönetimi -->
+        <button class="menu-btn" id="btnManageSalaries">
+          <span class="menu-icon">💰</span> Personel / Maaş Yönetimi
+        </button>
+
+        <!-- ✅ Grup düzenleme -->
+        <button class="menu-btn" id="btnManageGroups">
+          <span class="menu-icon">⚙️</span> Grup Düzenle
+        </button>
+
+        <button class="menu-btn" id="btnExportJson">
+          <span class="menu-icon">💾</span> Yedeği İndir (JSON)
+        </button>
+        <button class="menu-btn" id="btnImportJson">
+          <span class="menu-icon">📂</span> Yedek Yükle
+        </button>
+
+        <button class="menu-btn" id="btnExportHtml">
+          <span class="menu-icon">🧩</span> Paneli İndir (HTML)
+        </button>
+        <button class="menu-btn" id="btnImportHtml">
+          <span class="menu-icon">📥</span> Paneli Yükle (HTML)
+        </button>
+
+        <button class="menu-btn" style="color:#ef4444;" id="btnReset">
+          <span class="menu-icon">⚠️</span> Sistemi Sıfırla
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="dashboard-grid" id="clubDashboard"><div class="club-card" style="border-left: 5px solid rgb(16, 185, 129);">
+        <div>
+          <h3 data-toggle="cd892104-5295-427b-94b1-c3a7b86524a2">
+            <span class="caret">▶</span>
+            <span class="clubName">Beden Eğitimi (İlk 2) Hülya Hoca</span>
+          </h3>
+          <div class="club-info">Tüm Sınıflar • İlk 2</div>
+        </div>
+
+        <div class="club-stat">1 Öğrenci</div>
+
+        <div class="club-actions">
+          <button class="icon-btn" title="Excel İndir" data-ex="cd892104-5295-427b-94b1-c3a7b86524a2">Ex</button>
+          <button class="icon-btn" title="Word İndir" data-wd="cd892104-5295-427b-94b1-c3a7b86524a2">Wd</button>
+        </div>
+
+        <div class="club-students" id="clubStudents_cd892104-5295-427b-94b1-c3a7b86524a2">
+          <div class="st">
+                          <div>
+                            <b>ARIN YILDIZ</b>
+                            <div class="sub">1-C • 5319127642</div>
+                          </div>
+                          <div class="sub">4 Saat</div>
+                        </div>
+        </div>
+      </div><div class="club-card" style="border-left: 5px solid rgb(16, 185, 129);">
+        <div>
+          <h3 data-toggle="912a3d2b-0de7-4662-a2fb-ab699fd28f70">
+            <span class="caret">▶</span>
+            <span class="clubName">Akıl Zeka (Son 2) Şebnem Şişman</span>
+          </h3>
+          <div class="club-info">Tüm Sınıflar • Son 2</div>
+        </div>
+
+        <div class="club-stat">1 Öğrenci</div>
+
+        <div class="club-actions">
+          <button class="icon-btn" title="Excel İndir" data-ex="912a3d2b-0de7-4662-a2fb-ab699fd28f70">Ex</button>
+          <button class="icon-btn" title="Word İndir" data-wd="912a3d2b-0de7-4662-a2fb-ab699fd28f70">Wd</button>
+        </div>
+
+        <div class="club-students" id="clubStudents_912a3d2b-0de7-4662-a2fb-ab699fd28f70">
+          <div class="st">
+                          <div>
+                            <b>ARIN YILDIZ</b>
+                            <div class="sub">1-C • 5319127642</div>
+                          </div>
+                          <div class="sub">4 Saat</div>
+                        </div>
+        </div>
+      </div></div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <div>
+          <div class="table-title" id="tableTitle">Kayıtlı Öğrenciler</div>
+          <div id="activeGroupPill" style="margin-top:6px; display:none;"></div>
+        </div>
+        <div class="tabs">
+          <button class="tab-btn active" id="tabAll">Tümü</button>
+          <button class="tab-btn" id="tabPaid">Ödeme Yapan</button>
+          <button class="tab-btn" id="tabPartial">Kısmi Ödeme</button>
+          <button class="tab-btn" id="tabNoPay">Ödeme Yapmayan</button>
+          <button class="tab-btn" id="tabFree">Ücretsiz</button>
+        <div class="badge badge-gray" id="recordCount">1 kayıt</div>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Öğrenci</th>
+              <th>Sınıf</th>
+              <th>Veli Tel</th>
+              <th>Kulüpler</th>
+              <th>Durum</th>
+              <th style="text-align:right;">Bakiye</th>
+              <th style="text-align:right; min-width:160px;">İşlem</th>
+            </tr>
+          </thead>
+          <tbody id="studentsTbody"><tr class="row-nopay">
+        <td><div style="font-weight:900;">ARIN YILDIZ</div><div style="font-size:11px;color:#64748b">4 Saat</div></td>
+        <td><span class="badge badge-gray">1-C</span></td>
+        <td>5319127642</td>
+        <td style="font-size:12px;">Beden Eğitimi (İlk 2) Hülya Hoca / Akıl Zeka (Son 2) Şebnem Şişman</td>
+        <td><span class="badge" style="background:#ffedd5;color:#9a3412;">Ödeme Bekliyor</span></td>
+        <td style="text-align:right;">
+          <div class="money">19.712 TL</div>
+          <div style="font-size:11px;color:#64748b;">Ödenen: 0 TL</div>
+          <div class="money text-red">-19.712 TL</div>
+        </td>
+        <td style="text-align:right;">
+          <button class="btn-sm" onclick="promptPayment('7b1c2140-e477-403d-9ff7-44103c2602f8')">Öde</button>
+          <button class="btn-sm" onclick="editStudent('7b1c2140-e477-403d-9ff7-44103c2602f8')">Düzenle</button>
+          <button class="btn-sm" style="color:#ef4444;" onclick="delStudent('7b1c2140-e477-403d-9ff7-44103c2602f8')">Sil</button>
+        </td>
+      </tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- STUDENT MODAL -->
+<div class="modal-overlay" id="modalOverlay" style="display: none;">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Öğrenci Düzenle</div>
+      <button class="close-btn" id="btnCloseModal">×</button>
+    </div>
+
+    <div id="modalBody">
+      <div class="form-group">
+        <label>Öğrenci Adı Soyadı</label>
+        <input id="sName" placeholder="Örn: Ali Veli" autocomplete="off">
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+        <div class="form-group">
+          <label>Sınıf</label>
+          <select id="sGrade">
+            <option value="">Seç...</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Şube</label>
+          <select id="sBranch">
+            <option value="">Seç...</option>
+            <option value="A">A</option><option value="B">B</option><option value="C">C</option>
+            <option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Veli Telefon</label>
+        <input id="sPhone" placeholder="0555...">
+      </div>
+
+      <div class="form-group">
+        <label>Saat Tercihi</label>
+        <select id="sTime">
+          <option value="">Seçiniz...</option>
+          <option value="2h_first">İlk 2 Saat</option>
+          <option value="2h_last">Son 2 Saat</option>
+          <option value="4h">4 Saat (İlk 2 + Son 2)</option>
+        </select>
+      </div>
+
+      <div id="groupSelectors" style="background: rgb(248, 250, 252); padding: 16px; border-radius: 12px; display: block; border: 1px solid rgb(226, 232, 240);">
+        <div id="singleGroupDiv" class="form-group" style="margin-bottom: 0px; display: block;">
+          <label>Grup Seçimi</label>
+          <select id="selSingleGroup"><option value="">Seçiniz...</option><option value="cd892104-5295-427b-94b1-c3a7b86524a2">Beden Eğitimi (İlk 2) Hülya Hoca</option><option value="25fd5eab-f0fb-417a-b876-e13310bbd7a3">Satranç (İlk 2) Kadir Şişman</option><option value="2804cfbd-5cc1-4e88-9f7f-2f5102d06de9">Akıl Zeka (İlk 2) Şebnem Şişman</option></select>
+        </div>
+        <div id="doubleGroupDiv" style="display: none;">
+          <div class="form-group">
+            <label>İlk 2 Saat Grubu</label>
+            <select id="selFirstGroup"><option value="">Seçiniz...</option><option value="cd892104-5295-427b-94b1-c3a7b86524a2">Beden Eğitimi (İlk 2) Hülya Hoca</option><option value="25fd5eab-f0fb-417a-b876-e13310bbd7a3">Satranç (İlk 2) Kadir Şişman</option><option value="2804cfbd-5cc1-4e88-9f7f-2f5102d06de9">Akıl Zeka (İlk 2) Şebnem Şişman</option></select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Son 2 Saat Grubu</label>
+            <select id="selLastGroup"><option value="">Seçiniz...</option><option value="912a3d2b-0de7-4662-a2fb-ab699fd28f70">Akıl Zeka (Son 2) Şebnem Şişman</option><option value="7ede9457-4ff7-4fce-9899-9ec860e9898d">Satranç (Son2) Kadir ŞİŞMAN</option></select>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-group" style="margin-top:14px;">
+        <label>Ücret Seçeneği</label>
+        <select id="sFeePolicy">
+          <option value="full">Tam Ücret</option>
+          <option value="half">Kardeş (Yarım Ücret)</option>
+          <option value="free">Ücretsiz</option>
+        </select>
+        <div style="font-size:11px;color:#64748b;margin-top:6px;">
+          Not: Kardeş indirimi için bir kardeşi "Tam Ücret", diğerini "Kardeş (Yarım Ücret)" seçebilirsiniz.
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-sm" id="btnCancelModal" style="width:auto; padding:12px 20px; font-size:14px;">İptal</button>
+      <button class="big-btn" id="btnSaveModal" style="width:auto; padding:12px 30px; margin-bottom:0; font-size:14px;">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ SALARY/PERSONNEL MANAGER MODAL -->
+<div class="modal-overlay" id="salaryModalOverlay">
+  <div class="modal-box" style="max-width: 900px;">
+    <div class="modal-header">
+      <div class="modal-title">Personel ve Maaş Yönetimi</div>
+      <button class="close-btn" id="btnCloseSalaryModal">×</button>
+    </div>
+
+    <!-- GİDER KALEMLERİ ÖZET TABLOSU -->
+    <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+      <div style="font-size: 16px; font-weight: 900; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+        <span>GİDER KALEMLERİ ÖZET TABLOSU</span>
+        <span style="font-size: 14px; font-weight: normal; opacity: 0.9;">Aylık Aidat Toplamı (Havuz): <strong id="summaryTotalPool" style="font-size: 16px;">0 TL</strong></span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px;">
+        <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+          <div style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">1- Temel Giderler (Materyal, Beslenme, SGK vb.) %26</div>
+          <div style="font-size: 16px; font-weight: 900; color: #38bdf8;" id="sumTemelGider">0,00 TL</div>
+        </div>
+        <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+          <div style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">2- Denetleme Yetkilisi %1</div>
+          <div style="font-size: 16px; font-weight: 900; color: #a78bfa;" id="sumDenetleme">0,00 TL</div>
+        </div>
+        <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+          <div style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">3- Kulüp Yönetim Kurulu Bşk. (Müdür) %7</div>
+          <div style="font-size: 16px; font-weight: 900; color: #f472b6;" id="sumMudur">0,00 TL</div>
+        </div>
+        <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+          <div style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">4- Kulüp Yönetim Kurulu Üyesi (Md. Yrd.) %5</div>
+          <div style="font-size: 16px; font-weight: 900; color: #fb923c;" id="sumMdYrd">0,00 TL</div>
+        </div>
+        <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+          <div style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">5- Öğretmen, Usta Öğr. ve Koordinatör %55</div>
+          <div style="font-size: 16px; font-weight: 900; color: #34d399;" id="sumOgretmen">0,00 TL</div>
+        </div>
+        <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+          <div style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">6- Yazışma-Muhasebe İşleri Personeli %2</div>
+          <div style="font-size: 16px; font-weight: 900; color: #facc15;" id="sumMuhasebe">0,00 TL</div>
+        </div>
+        <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+          <div style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">7- Temizlik Bakım ve Beslenme Personeli %4</div>
+          <div style="font-size: 16px; font-weight: 900; color: #e879f9;" id="sumTemizlik">0,00 TL</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÜCRET BELİRLEME TABLOSU -->
+    <div style="background: white; padding: 24px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+      <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 16px; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 20px;">⚙️</span> ÜCRET BELİRLEME TABLOSU
+      </h3>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; align-items: end;">
+        <!-- Manuel Girilenler -->
+        <div class="form-group" style="margin-bottom:0;">
+          <label>1- Aylık İçin Belirlenen Katsayı</label>
+          <input type="number" id="yeni_salCoefficient" value="1.39" step="0.01">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label>2- Gündüz Öğretimi Göstergesi</label>
+          <input type="number" id="yeni_salIndicator" value="140">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label>3- Kulüpte Yemek Hizmeti Veriliyor Mu?</label>
+          <select id="yeni_salFoodService">
+            <option value="evet">EVET</option>
+            <option value="hayir">HAYIR</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label>4- Okulun Belirlediği Saat Ücreti</label>
+          <input type="number" id="yeni_salHourlyRate" value="64.00" step="0.01">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="color:#2563eb;">5- Günlük Kulüp Etkinlik Saati Sayısı <small>(Manuel)</small></label>
+          <input type="number" id="yeni_salDailyHours" placeholder="Örn: 4" style="border-color:#bfdbfe; background:#eff6ff;">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="color:#2563eb;">6- Aylık İş Günü Sayısı <small>(Manuel)</small></label>
+          <input type="number" id="yeni_salWorkDays" placeholder="Örn: 20" style="border-color:#bfdbfe; background:#eff6ff;">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="color:#2563eb;">8- Kulübe Katılan Çocuk Sayısı <small>(Manuel)</small></label>
+          <input type="number" id="yeni_salStudentCount" placeholder="Örn: 90" style="border-color:#bfdbfe; background:#eff6ff;">
+        </div>
+
+        <!-- Otomatik Hesaplananlar -->
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="color:#059669;">7- Okulun Belirlediği Aylık Ücret</label>
+          <input type="text" id="yeni_salMonthlyFee" placeholder="Oto: Saat x Gün x İş Günü" readonly style="background:#ecfdf5; border-color:#a7f3d0; color:#065f46; font-weight:bold;">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="color:#059669;">9- Aylık Aidat Toplamı</label>
+          <input type="text" id="yeni_salTotalPool" placeholder="Oto: Aylık Ücret x Çocuk" readonly style="background:#ecfdf5; border-color:#a7f3d0; color:#065f46; font-weight:bold;">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="color:#059669;">10- En Yüksek Devlet Memuru Brüt Aylığı</label>
+          <input type="text" id="yeni_salCivilServant" placeholder="Oto: Katsayı x 9500" readonly style="background:#ecfdf5; border-color:#a7f3d0; color:#065f46; font-weight:bold;">
+        </div>
+      </div>
+    </div>
+
+    <!-- DERS SAATİ TOPLAMI BELİRLEME TABLOSU -->
+    <div style="background: white; padding: 24px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+      <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 16px; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 20px;">⏱️</span> DERS SAATİ TOPLAMI BELİRLEME TABLOSU
+      </h3>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; align-items: end;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="color:#2563eb;">1- Kulüp Grup (sınıf) Sayısı <small>(Manuel)</small></label>
+          <input type="number" id="yeni_dersGroupCount" placeholder="Örn: 2" style="border-color:#bfdbfe; background:#eff6ff;" value="1">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="color:#2563eb;">2- Günlük Ders Saati Toplamı <small>(Manuel)</small></label>
+          <input type="number" id="yeni_dersDailyTotal" placeholder="Örn: 4" style="border-color:#bfdbfe; background:#eff6ff;" value="4">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label>3- Ders Yapılan Gün Sayısı</label>
+          <input type="number" id="yeni_dersWorkDays" readonly style="background:#f1f5f9; border-color:#cbd5e1; color:#64748b;">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="color:#059669;">4- Aylık Toplam Ders Sayısı</label>
+          <input type="number" id="yeni_dersMonthlyTotal" readonly style="background:#ecfdf5; border-color:#a7f3d0; color:#065f46; font-weight:bold;">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="color:#2563eb;">5- KOORDİNATÖRLÜK <small>(Manuel)</small></label>
+          <input type="number" id="yeni_dersCoordinator" placeholder="Örn: 10" style="border-color:#bfdbfe; background:#eff6ff;" value="0">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="color:#059669;">6- GENEL TOPLAM</label>
+          <input type="number" id="yeni_dersGrandTotal" readonly style="background:#ecfdf5; border-color:#a7f3d0; color:#065f46; font-weight:bold;">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="color:#9333ea;">7- SAAT ÜCRETİ (Hesaplanan)</label>
+          <input type="text" id="yeni_dersHourlyRateCalculated" readonly style="background:#fdf4ff; border-color:#f5d0fe; color:#86198f; font-weight:bold;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Arka plan hesaplamaları için gizli alanlar (kullanıcı görmeyecek) -->
+    <div style="display:none;" id="maasHesaplamaAyarlariGirdi">
+      <input type="month" id="salMonth">
+      <input type="number" id="salStudentCount">
+      <input type="number" id="salTotalPool" readonly>
+      <input type="number" id="salWorkDays" value="20">
+      <input type="number" id="salDailyHours" value="4">
+      <input type="number" id="salTotalLessons">
+      <input type="number" id="salHourlyRate" value="64">
+      <input type="number" id="salGroupCount" value="1">
+      <input type="number" id="salMonthlyFee" readonly>
+      <input type="number" id="salCoefficient" value="1.387871">
+      <input type="number" id="salIndicator" value="140">
+      <input type="number" id="salCivilServant" value="13184.77" readonly>
+      <button id="btnCalcSalaries">Hesapla</button>
+    </div>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; justify-content:space-between;">
+      <div>
+        <button class="btn-sm" id="btnAddPersonnel">➕ Personel Ekle</button>
+      </div>
+      <div>
+        <button class="btn-sm" id="btnExportSalariesExcel">📊 Excel'e Aktar</button>
+      </div>
+    </div>
+
+    <div style="border:1px solid #e2e8f0; border-radius:14px; overflow:x-auto;">
+      <table style="width:100%; border-collapse:collapse; min-width: 800px; font-size: 12px;">
+        <thead>
+          <tr>
+            <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0;">Personel Adı</th>
+            <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0;">Görevi/Yüzdesi</th>
+            <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:right;">Brüt (TL)</th>
+            <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:right;">Gelir V. (%15)</th>
+            <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:right;">Damga V. (‰7.59)</th>
+            <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:right;">Net Tutar (TL)</th>
+            <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:center;">İşlem</th>
+          </tr>
+        </thead>
+        <tbody id="personnelTbody"></tbody>
+        <tfoot id="personnelTfoot" style="font-weight: bold; background: #f1f5f9;"></tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ PERSONEL EKLE/DÜZENLE MODAL -->
+<div class="modal-overlay" id="personnelEditModalOverlay" style="z-index: 110;">
+  <div class="modal-box" style="max-width: 500px;">
+    <div class="modal-header">
+      <div class="modal-title" id="personnelModalTitle">Personel Ekle</div>
+      <button class="close-btn" id="btnClosePersonnelEditModal">×</button>
+    </div>
+
+    <div class="form-group">
+      <label>Ad Soyad</label>
+      <input id="pName" placeholder="Örn: Ali Yılmaz">
+    </div>
+    <div class="form-group">
+      <label>Görevi / Havuzu</label>
+      <select id="pRole">
+        <option value="manager">%7 Müdür Payı</option>
+        <option value="deputy">%5 Müdür Yrd. Payı</option>
+        <option value="accounting">%2 Muhasebe Payı</option>
+        <option value="cleaning">%4 Temizlik Payı</option>
+        <option value="teacher_pool">%55 Öğretmen/Koordinatör Havuzu</option>
+        <option value="custom">Özel Yüzde</option>
+      </select>
+    </div>
+    <div class="form-group" id="pCustomPercentGroup" style="display:none;">
+      <label>Özel Yüzde (%)</label>
+      <input type="number" id="pCustomPercent" placeholder="Örn: 10">
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-sm" id="btnCancelPersonnelEdit" style="width:auto; padding:12px 20px; font-size:14px;">İptal</button>
+      <button class="big-btn" id="btnSavePersonnel" style="width:auto; padding:12px 30px; margin-bottom:0; font-size:14px;">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ GROUP MANAGER MODAL -->
+<div class="modal-overlay" id="groupModalOverlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Grupları Düzenle</div>
+      <button class="close-btn" id="btnCloseGroupModal">×</button>
+    </div>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
+      <button class="btn-sm" id="btnAddGroup">➕ Grup Ekle</button>
+      <button class="btn-sm" id="btnRefreshGroups">🔄 Yenile</button>
+    </div>
+
+    <div style="border:1px solid #e2e8f0; border-radius:14px; overflow:hidden;">
+      <table style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th style="padding:12px 14px; background:#f8fafc; border-bottom:1px solid #e2e8f0;">Grup Adı</th>
+            <th style="padding:12px 14px; background:#f8fafc; border-bottom:1px solid #e2e8f0;">Sınıf</th>
+            <th style="padding:12px 14px; background:#f8fafc; border-bottom:1px solid #e2e8f0;">Saat</th>
+            <th style="padding:12px 14px; background:#f8fafc; border-bottom:1px solid #e2e8f0;">Tür</th>
+            <th style="padding:12px 14px; background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:right;">İşlem</th>
+          </tr>
+        </thead>
+        <tbody id="groupsTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="hamitFooter">
+  Bu program <span>Hamit YAZICI</span> tarafından kodlanmıştır.
+</div>
+
+<script id="embeddedState" type="application/json">{"groups":[{"id":"0f8d6663-467d-4bbe-95ec-104aeb8e66d6","name":"1. Sınıf Akademik A (İlk 2) Hatice ÖZTÜRK","grade":1,"slot":"first2","type":"academic","lesson":"1. Sınıf Akademik A","createdAt":1768479979714},{"id":"da50161b-62f5-48de-98c6-73b3e9ba121a","name":"1. Sınıf Akademik B (İlk 2) Sevil KAYRAK","grade":1,"slot":"first2","type":"academic","lesson":"1. Sınıf Akademik B","createdAt":1768479979714},{"id":"035a8ad2-9337-4979-9304-2faf19cf18b5","name":"3. Sınıf Akademik A (İlk 2) M. Ali TUNÇ","grade":3,"slot":"first2","type":"academic","lesson":"3. Sınıf Akademik A","createdAt":1768479979714},{"id":"cd892104-5295-427b-94b1-c3a7b86524a2","name":"Beden Eğitimi (İlk 2) Hülya Hoca","grade":0,"slot":"first2","type":"activity","lesson":"Beden Eğitimi","createdAt":1768479979714},{"id":"25fd5eab-f0fb-417a-b876-e13310bbd7a3","name":"Satranç (İlk 2) Kadir Şişman","grade":0,"slot":"first2","type":"activity","lesson":"Satranç","createdAt":1768479979714},{"id":"2804cfbd-5cc1-4e88-9f7f-2f5102d06de9","name":"Akıl Zeka (İlk 2) Şebnem Şişman","grade":0,"slot":"first2","type":"activity","lesson":"Akıl Zeka","createdAt":1768479979714},{"id":"912a3d2b-0de7-4662-a2fb-ab699fd28f70","name":"Akıl Zeka (Son 2) Şebnem Şişman","grade":0,"slot":"last2","type":"activity","lesson":"Akıl Zeka","createdAt":1768479979714},{"id":"7ede9457-4ff7-4fce-9899-9ec860e9898d","name":"Satranç (Son2) Kadir ŞİŞMAN","grade":0,"slot":"last2","type":"activity","lesson":"SATRANÇ","createdAt":1770376093438}],"students":[{"feePolicy":"full","id":"d3690369-0827-426a-9e4d-50b259a70f4b","name":"DEVRAN ARAS GÜCÜ","grade":1,"branch":"E","timePref":"4h","parentPhone":"5354715181","firstGroupId":"cd892104-5295-427b-94b1-c3a7b86524a2","lastGroupId":"7ede9457-4ff7-4fce-9899-9ec860e9898d","paidTL":0,"createdAt":1768557607811,"updatedAt":1768557607811},{"feePolicy":"full","id":"bdeae657-659f-43d7-9032-354d8b9916be","name":"ATLAS ERİM","grade":1,"branch":"A","timePref":"2h_first","parentPhone":"5066032202","firstGroupId":"cd892104-5295-427b-94b1-c3a7b86524a2","lastGroupId":null,"paidTL":0,"createdAt":1768563762518,"updatedAt":1768563762518},{"feePolicy":"full","id":"49d918aa-9e4a-4b5d-ac76-00d3be46e5a8","name":"BERİL İPEK DÖNER","grade":1,"branch":"A","timePref":"4h","parentPhone":"5442874461","firstGroupId":"cd892104-5295-427b-94b1-c3a7b86524a2","lastGroupId":"912a3d2b-0de7-4662-a2fb-ab699fd28f70","paidTL":0,"createdAt":1768563833325,"updatedAt":1768563833325},{"feePolicy":"full","id":"87fa0219-270f-485b-ae83-eda458b6b0f1","name":"ADA ÖRER","grade":1,"branch":"A","timePref":"2h_first","parentPhone":"5350170535","firstGroupId":"2804cfbd-5cc1-4e88-9f7f-2f5102d06de9","lastGroupId":null,"paidTL":0,"createdAt":1768563969285,"updatedAt":1768568922164},{"feePolicy":"full","id":"b949b661-0463-4f23-b59d-e0c9ecf8e1d3","name":"ARVEN BAŞARAN","grade":1,"branch":"A","timePref":"4h","parentPhone":"YOK","firstGroupId":"cd892104-5295-427b-94b1-c3a7b86524a2","lastGroupId":"912a3d2b-0de7-4662-a2fb-ab699fd28f70","paidTL":0,"createdAt":1768564023565,"updatedAt":1768564023565},{"feePolicy":"full","id":"830d3c51-f470-4b80-a8c8-e904c9d8ad72","name":"BURAK DENİZ BÜYÜKGÜZEL","grade":1,"branch":"F","timePref":"2h_first","parentPhone":"05326435304","firstGroupId":"cd892104-5295-427b-94b1-c3a7b86524a2","lastGroupId":null,"paidTL":0,"createdAt":1768564086925,"updatedAt":1768564086925},{"feePolicy":"full","id":"583eb25d-067a-4d3f-8f77-9d809194142c","name":"BALKAN AKSOY","grade":1,"branch":"F","timePref":"2h_first","parentPhone":"05359767324","firstGroupId":"2804cfbd-5cc1-4e88-9f7f-2f5102d06de9","lastGroupId":null,"paidTL":0,"createdAt":1768564135869,"updatedAt":1768564135869},{"feePolicy":"full","id":"d749291e-e674-4cd0-b5ed-32ddf9615241","name":"DEMİR MEŞELİ","grade":1,"branch":"F","timePref":"2h_first","parentPhone":"5321552208","firstGroupId":"2804cfbd-5cc1-4e88-9f7f-2f5102d06de9","lastGroupId":null,"paidTL":0,"createdAt":1768564231572,"updatedAt":1768564231572},{"feePolicy":"full","id":"26c9bf23-c153-4bc0-8c59-6d279e12a7ab","name":"ZEYNEP BAYIR","grade":1,"branch":"F","timePref":"2h_first","parentPhone":"5435310043","firstGroupId":"2804cfbd-5cc1-4e88-9f7f-2f5102d06de9","lastGroupId":null,"paidTL":0,"createdAt":1768564267836,"updatedAt":1768564267836},{"feePolicy":"full","id":"2e83011b-53bf-4ee8-a256-b366ac7ff654","name":"MUHAMMED ALİ ÖZTOPRAK","grade":2,"branch":"D","timePref":"2h_first","parentPhone":"5532119309","firstGroupId":"25fd5eab-f0fb-417a-b876-e13310bbd7a3","lastGroupId":null,"paidTL":0,"createdAt":1768564369676,"updatedAt":1768564369676},{"feePolicy":"full","id":"53b30fd0-86f1-49eb-a6c7-e98e97f0fa94","name":"YAĞIZ ALP ERENÇ","grade":2,"branch":"C","timePref":"2h_first","parentPhone":"05333502922","firstGroupId":"25fd5eab-f0fb-417a-b876-e13310bbd7a3","lastGroupId":null,"paidTL":0,"createdAt":1768565280226,"updatedAt":1768565280226},{"feePolicy":"full","id":"a821a88e-32c3-45a6-b46f-f11bbe1bbbd1","name":"JANSET ATALAN","grade":2,"branch":"C","timePref":"2h_first","parentPhone":"05546908670","firstGroupId":"25fd5eab-f0fb-417a-b876-e13310bbd7a3","lastGroupId":null,"paidTL":0,"createdAt":1768565590793,"updatedAt":1768565654777},{"feePolicy":"full","id":"33ff500d-ce05-4d79-b1de-5ba01b1a42f2","name":"CİHANGİR OMA","grade":2,"branch":"E","timePref":"2h_first","parentPhone":"YOK","firstGroupId":"cd892104-5295-427b-94b1-c3a7b86524a2","lastGroupId":null,"paidTL":0,"createdAt":1768565685249,"updatedAt":1768565685249},{"feePolicy":"full","id":"025fce4a-67d1-4f37-8e98-58001f89c15f","name":"ELA BULUT","grade":3,"branch":"A","timePref":"2h_first","parentPhone":"05334379282","firstGroupId":"25fd5eab-f0fb-417a-b876-e13310bbd7a3","lastGroupId":null,"paidTL":0,"createdAt":1768565821361,"updatedAt":1768565821361},{"feePolicy":"full","id":"8db25189-3c03-4dcb-ba0c-f113f1e44bdf","name":"KAAN YANIK","grade":1,"branch":"G","timePref":"2h_first","parentPhone":"05428941160","firstGroupId":null,"lastGroupId":null,"paidTL":0,"createdAt":1768565868721,"updatedAt":1768565868721},{"feePolicy":"full","id":"7a45cbe2-bdc2-48ff-aa06-1db198dcad6a","name":"DÜNYA KADİR MELEK","grade":1,"branch":"G","timePref":"4h","parentPhone":"05443058789","firstGroupId":"2804cfbd-5cc1-4e88-9f7f-2f5102d06de9","lastGroupId":"7ede9457-4ff7-4fce-9899-9ec860e9898d","paidTL":0,"createdAt":1768565933385,"updatedAt":1768565933385},{"feePolicy":"full","id":"81dbe853-5e89-4b12-bcfb-37faa0bd3f27","name":"YAĞMUR SUSAM","grade":3,"branch":"E","timePref":"4h","parentPhone":"05547602115","firstGroupId":"035a8ad2-9337-4979-9304-2faf19cf18b5","lastGroupId":"7ede9457-4ff7-4fce-9899-9ec860e9898d","paidTL":0,"createdAt":1768565991328,"updatedAt":1768565991328},{"feePolicy":"full","id":"5c5805f7-0277-4da3-bce0-bae1371c06d8","name":"ADA SAĞLAM","grade":3,"branch":"B","timePref":"4h","parentPhone":"05536160043","firstGroupId":"035a8ad2-9337-4979-9304-2faf19cf18b5","lastGroupId":"912a3d2b-0de7-4662-a2fb-ab699fd28f70","paidTL":0,"createdAt":1768566045816,"updatedAt":1768566045816},{"feePolicy":"full","id":"8668acf2-d514-4d3e-bbb2-19bbcfa59291","name":"ZEYNEP YAŞAR","grade":3,"branch":"B","timePref":"2h_first","parentPhone":"05067434781","firstGroupId":"cd892104-5295-427b-94b1-c3a7b86524a2","lastGroupId":null,"paidTL":0,"createdAt":1768566094368,"updatedAt":1768566094368},{"feePolicy":"full","id":"a2fb42ca-c7df-4d7a-b0e4-5d963e3675cf","name":"AREN PAŞAHAN AKTAŞ","grade":1,"branch":"A","timePref":"2h_first","parentPhone":"05079646008","firstGroupId":"2804cfbd-5cc1-4e88-9f7f-2f5102d06de9","lastGroupId":null,"paidTL":0,"createdAt":1768566197672,"updatedAt":1768566197672},{"feePolicy":"full","id":"1a77915e-7de8-4785-979d-93605a966216","name":"MERT SABRİ İSLAM","grade":3,"branch":"D","timePref":"2h_first","parentPhone":"05462294855","firstGroupId":"25fd5eab-f0fb-417a-b876-e13310bbd7a3","lastGroupId":null,"paidTL":0,"createdAt":1768566308440,"updatedAt":1768566308440},{"feePolicy":"full","id":"98413dba-f7d0-4dbd-bd5e-0d794c96b849","name":"EGE ERGÜN","grade":3,"branch":"A","timePref":"2h_first","parentPhone":"05057966815","firstGroupId":"cd892104-5295-427b-94b1-c3a7b86524a2","lastGroupId":null,"paidTL":0,"createdAt":1768566346984,"updatedAt":1768566346984},{"feePolicy":"full","id":"99751068-3603-4c4d-824b-1effbb77cba7","name":"NİL ATAOĞLU","grade":3,"branch":"A","timePref":"2h_first","parentPhone":"05426191578","firstGroupId":"25fd5eab-f0fb-417a-b876-e13310bbd7a3","lastGroupId":null,"paidTL":0,"createdAt":1768566386455,"updatedAt":1768566386455},{"feePolicy":"full","id":"abba0ae5-da07-4b00-8576-821b447652b0","name":"URAS NAZAROĞLU","grade":3,"branch":"A","timePref":"2h_first","parentPhone":"05435243305","firstGroupId":"25fd5eab-f0fb-417a-b876-e13310bbd7a3","lastGroupId":null,"paidTL":0,"createdAt":1768566442319,"updatedAt":1768566442319},{"feePolicy":"full","id":"10530a7c-93e9-4f27-8803-365a9e982569","name":"ÇAĞAN SÖNMEZ","grade":1,"branch":"B","timePref":"2h_first","parentPhone":"05454489922","firstGroupId":"0f8d6663-467d-4bbe-95ec-104aeb8e66d6","lastGroupId":null,"paidTL":0,"createdAt":1768566499551,"updatedAt":1768566499551},{"feePolicy":"full","id":"2e6c541a-4c5b-408a-b84e-05b9c0104dfc","name":"NİL UZUN","grade":1,"branch":"B","timePref":"2h_first","parentPhone":"5327055825","firstGroupId":"0f8d6663-467d-4bbe-95ec-104aeb8e66d6","lastGroupId":null,"paidTL":0,"createdAt":1768566525127,"updatedAt":1768566525127},{"feePolicy":"full","id":"32b21e90-fe04-4e9c-be45-5a32a1aa0215","name":"OĞUZ KAAN ÇÖKER","grade":1,"branch":"B","timePref":"4h","parentPhone":"05063576044","firstGroupId":"0f8d6663-467d-4bbe-95ec-104aeb8e66d6","lastGroupId":"912a3d2b-0de7-4662-a2fb-ab699fd28f70","paidTL":0,"createdAt":1768566598319,"updatedAt":1768566598319},{"feePolicy":"full","id":"e61b5bc8-5862-4cfa-85ad-e0108c9b8f4a","name":"MELİSA KABAN","grade":1,"branch":"B","timePref":"2h_first","parentPhone":"05545386465","firstGroupId":"0f8d6663-467d-4bbe-95ec-104aeb8e66d6","lastGroupId":null,"paidTL":0,"createdAt":1768566628663,"updatedAt":1768566628663},{"feePolicy":"full","id":"98ab9b89-3cae-4b92-9946-1585eaa45045","name":"MERT ÇİVİ","grade":1,"branch":"B","timePref":"2h_first","parentPhone":"05334153965","firstGroupId":"25fd5eab-f0fb-417a-b876-e13310bbd7a3","lastGroupId":null,"paidTL":0,"createdAt":1768566830807,"updatedAt":1768566830807},{"feePolicy":"full","id":"cc63db78-1b8f-44c1-91c9-42f99cacc117","name":"ÇINAR ALİ GÜZEL","grade":1,"branch":"B","timePref":"2h_first","parentPhone":"05364556570","firstGroupId":"25fd5eab-f0fb-417a-b876-e13310bbd7a3","lastGroupId":null,"paidTL":0,"createdAt":1768566876998,"updatedAt":1768566876998},{"feePolicy":"full","id":"d5ba15c1-d847-477a-88e6-2f87c5da594f","name":"MUSTAFA BULUT CEYLAN","grade":3,"branch":"E","timePref":"2h_first","parentPhone":"05303528725","firstGroupId":"035a8ad2-9337-4979-9304-2faf19cf18b5","lastGroupId":null,"paidTL":0,"createdAt":1768821613085,"updatedAt":1768821613085},{"feePolicy":"half","id":"b9ca0dfe-0aa9-44b6-a5ed-4df7e80338f0","name":"GÖKTUĞ CEYLAN","grade":1,"branch":"B","timePref":"2h_first","parentPhone":"05303528725","firstGroupId":"0f8d6663-467d-4bbe-95ec-104aeb8e66d6","lastGroupId":null,"paidTL":0,"createdAt":1768821665253,"updatedAt":1768822333325},{"feePolicy":"full","id":"mkqmpqzwwkl7yo4an9","name":"BERRAK DURSUN","grade":3,"branch":"G","parentPhone":"05425082110","timePref":"4h","firstGroupId":"cd892104-5295-427b-94b1-c3a7b86524a2","lastGroupId":"912a3d2b-0de7-4662-a2fb-ab699fd28f70","paidTL":0},{"feePolicy":"full","id":"mkqmrj38o4xr827q0mg","name":"BERTUĞ ERSOY","grade":2,"branch":"A","parentPhone":"05532398413","timePref":"4h","firstGroupId":"2804cfbd-5cc1-4e88-9f7f-2f5102d06de9","lastGroupId":"7ede9457-4ff7-4fce-9899-9ec860e9898d","paidTL":0},{"feePolicy":"full","id":"ml6fnbl4grbvzlc1neb","name":"AYAZ SAĞLAM","grade":3,"branch":"E","parentPhone":"5536160043","timePref":"4h","firstGroupId":"035a8ad2-9337-4979-9304-2faf19cf18b5","lastGroupId":"912a3d2b-0de7-4662-a2fb-ab699fd28f70","paidTL":0},{"feePolicy":"full","id":"ml6fsik7awpo0h1gk5t","name":"MAHİR DENİZ GENÇ","grade":3,"branch":"E","parentPhone":"5056956366","timePref":"2h_first","firstGroupId":"035a8ad2-9337-4979-9304-2faf19cf18b5","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml6fuxkvgsoi03wxrin","name":"RÜZGAR ACIOĞLU","grade":3,"branch":"G","parentPhone":"5079541053","timePref":"2h_first","firstGroupId":"035a8ad2-9337-4979-9304-2faf19cf18b5","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml6fvt6v5vjp836ktuf","name":"ELİF SU UĞUR","grade":3,"branch":"D","parentPhone":"5422101077","timePref":"2h_first","firstGroupId":"035a8ad2-9337-4979-9304-2faf19cf18b5","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml6g3m8vbblmbt7m4jc","name":"YAĞIZ ALİ EMEÇ","grade":2,"branch":"C","parentPhone":"5015792553","timePref":"4h","firstGroupId":"cd892104-5295-427b-94b1-c3a7b86524a2","lastGroupId":"7ede9457-4ff7-4fce-9899-9ec860e9898d","paidTL":0},{"feePolicy":"full","id":"ml6g5y7qx9s9e37fjmp","name":"BORA SÖNMEZ","grade":1,"branch":"D","parentPhone":"5075758373","timePref":"2h_first","firstGroupId":"da50161b-62f5-48de-98c6-73b3e9ba121a","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml6g766fizyl1upccs","name":"YAKUP EMİR ŞEN","grade":1,"branch":"D","parentPhone":"5437642519","timePref":"2h_first","firstGroupId":"0f8d6663-467d-4bbe-95ec-104aeb8e66d6","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml6g88q66t1r0j2j614","name":"DEFNE GÜMÜŞEL","grade":1,"branch":"D","parentPhone":"5556830318","timePref":"2h_first","firstGroupId":"da50161b-62f5-48de-98c6-73b3e9ba121a","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml6g92jy1yq7vjvbtsi","name":"ZEYNEP YALDIZ","grade":1,"branch":"D","parentPhone":"5358264183","timePref":"2h_first","firstGroupId":"da50161b-62f5-48de-98c6-73b3e9ba121a","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml6gb9javym03jsazn","name":"BERK SLEM","grade":1,"branch":"D","parentPhone":"5322468996","timePref":"2h_first","firstGroupId":"da50161b-62f5-48de-98c6-73b3e9ba121a","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml6gc7pqu23ljcj3fzb","name":"MEHMET ERİŞ","grade":1,"branch":"D","parentPhone":"5413063322","timePref":"2h_first","firstGroupId":"da50161b-62f5-48de-98c6-73b3e9ba121a","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml6gcv6e3029m7nlqk8","name":"ELİF AKALIN","grade":1,"branch":"D","parentPhone":"5317240365","timePref":"2h_first","firstGroupId":"da50161b-62f5-48de-98c6-73b3e9ba121a","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml6gdonyxsie2lj7gxp","name":"METEHAN VARDAR","grade":1,"branch":"D","parentPhone":"5536168601","timePref":"2h_first","firstGroupId":"da50161b-62f5-48de-98c6-73b3e9ba121a","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml6geo1ih4x6uj28qjf","name":"GÖKTÜRK METE KARAHAN","grade":1,"branch":"D","parentPhone":"5054689182","timePref":"2h_first","firstGroupId":"da50161b-62f5-48de-98c6-73b3e9ba121a","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml6gf8ryrsj79efmz7o","name":"KIVANÇ ELMACI","grade":1,"branch":"D","parentPhone":"5055901872","timePref":"2h_first","firstGroupId":"da50161b-62f5-48de-98c6-73b3e9ba121a","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml6gfx9q6a51s2ktcbn","name":"ULUTAN ERBİL","grade":1,"branch":"D","parentPhone":"5050452912","timePref":"2h_first","firstGroupId":"da50161b-62f5-48de-98c6-73b3e9ba121a","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml6ggxz1lhpolesfnx","name":"NİL AVŞAR","grade":1,"branch":"D","parentPhone":"5544187548","timePref":"2h_first","firstGroupId":"da50161b-62f5-48de-98c6-73b3e9ba121a","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml6gjzweolv8uod913","name":"ARTUN NOYAN ERİM","grade":1,"branch":"A","parentPhone":"5066032202","timePref":"2h_first","firstGroupId":"cd892104-5295-427b-94b1-c3a7b86524a2","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml6gn2bp3psdq0m2m58","name":"TUNA ÇAKIRKAYA","grade":3,"branch":"E","parentPhone":"5549008353","timePref":"2h_first","firstGroupId":"035a8ad2-9337-4979-9304-2faf19cf18b5","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml6gok1pzirnbz2o6pa","name":"ZEYNEP ZELİŞ TETİK","grade":3,"branch":"E","parentPhone":"YOK","timePref":"4h","firstGroupId":"035a8ad2-9337-4979-9304-2faf19cf18b5","lastGroupId":"7ede9457-4ff7-4fce-9899-9ec860e9898d","paidTL":0},{"feePolicy":"full","id":"ml6gpqed6c9k04u39dt","name":"ÖMER YÜKSEL","grade":3,"branch":"E","parentPhone":"5059356470","timePref":"2h_first","firstGroupId":"035a8ad2-9337-4979-9304-2faf19cf18b5","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml6gqp71k3sm0eli4g","name":"KEREM YETİŞ","grade":3,"branch":"E","parentPhone":"5334943610","timePref":"4h","firstGroupId":"035a8ad2-9337-4979-9304-2faf19cf18b5","lastGroupId":"912a3d2b-0de7-4662-a2fb-ab699fd28f70","paidTL":0},{"feePolicy":"full","id":"ml6grslhrvpi0ijvf","name":"ELİF YORGANCIOĞLU","grade":3,"branch":"B","parentPhone":"5052654324","timePref":"2h_first","firstGroupId":"035a8ad2-9337-4979-9304-2faf19cf18b5","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml6gtt4d5jpuy2ffmhx","name":"TANEMSU NAĞIŞKAYA","grade":3,"branch":"E","parentPhone":"5455353009","timePref":"2h_first","firstGroupId":"035a8ad2-9337-4979-9304-2faf19cf18b5","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml6gyh58ltkjk3cndo","name":"TUĞRA AKIN","grade":3,"branch":"E","parentPhone":"5533414392","timePref":"2h_first","firstGroupId":"035a8ad2-9337-4979-9304-2faf19cf18b5","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml6gzig4kgq543wl11c","name":"DENİZ ŞAHİN","grade":3,"branch":"E","parentPhone":"5069262356","timePref":"2h_first","firstGroupId":"035a8ad2-9337-4979-9304-2faf19cf18b5","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml7swsrxoh4ca3hpkz","name":"ALYA ASLAN","grade":1,"branch":"A","parentPhone":"5072788727","timePref":"2h_first","firstGroupId":"cd892104-5295-427b-94b1-c3a7b86524a2","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml7syuxaww3o38ijc","name":"ERVA DURU YAKUT","grade":1,"branch":"C","parentPhone":"5553519323","timePref":"2h_first","firstGroupId":"cd892104-5295-427b-94b1-c3a7b86524a2","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml7t62jh4rs7vy0zboq","name":"MAVİ TUNA ÖZDEMİR","grade":1,"branch":"E","parentPhone":"5052694946","timePref":"2h_first","firstGroupId":"25fd5eab-f0fb-417a-b876-e13310bbd7a3","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml7t747xd4rroqugq08","name":"GÜLCE YILDIZ","grade":1,"branch":"E","parentPhone":"5068325416","timePref":"4h","firstGroupId":"0f8d6663-467d-4bbe-95ec-104aeb8e66d6","lastGroupId":"912a3d2b-0de7-4662-a2fb-ab699fd28f70","paidTL":0},{"feePolicy":"free","id":"ml7tb17906f31d3d29wg","name":"ZEYNEP ALTINOBA","grade":2,"branch":"A","parentPhone":"5551800613","timePref":"4h","firstGroupId":"2804cfbd-5cc1-4e88-9f7f-2f5102d06de9","lastGroupId":"7ede9457-4ff7-4fce-9899-9ec860e9898d","paidTL":0},{"feePolicy":"full","id":"ml7tccd8st09e4nw3uf","name":"EYMEN GÖKALP","grade":3,"branch":"C","parentPhone":"5534806699","timePref":"2h_last","firstGroupId":null,"lastGroupId":"7ede9457-4ff7-4fce-9899-9ec860e9898d","paidTL":0},{"feePolicy":"free","id":"ml7tdgb07jebm8n6lf","name":"SENA GÜLNAZ","grade":2,"branch":"D","parentPhone":"5376962871","timePref":"4h","firstGroupId":"2804cfbd-5cc1-4e88-9f7f-2f5102d06de9","lastGroupId":"7ede9457-4ff7-4fce-9899-9ec860e9898d","paidTL":0,"customFee":19712},{"feePolicy":"full","id":"ml7ukggylg5yxn0spo","name":"ALİN KILIÇ","grade":2,"branch":"B","parentPhone":"5531336267","timePref":"4h","firstGroupId":"2804cfbd-5cc1-4e88-9f7f-2f5102d06de9","lastGroupId":"7ede9457-4ff7-4fce-9899-9ec860e9898d","paidTL":0},{"feePolicy":"full","id":"ml854gig4jvmqzqyfa7","name":"YİĞİT ALİ YAŞAR","grade":1,"branch":"E","parentPhone":"5067434781","timePref":"2h_first","firstGroupId":"25fd5eab-f0fb-417a-b876-e13310bbd7a3","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml96jl89g6pb5xbi3ui","name":"ŞİAR AHMET DEMİR","grade":1,"branch":"E","parentPhone":"5330348105","timePref":"2h_first","firstGroupId":"cd892104-5295-427b-94b1-c3a7b86524a2","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml96l46pql9k3wq2w5q","name":"ASYA APAYDIN","grade":1,"branch":"G","parentPhone":"5558753065","timePref":"2h_first","firstGroupId":"2804cfbd-5cc1-4e88-9f7f-2f5102d06de9","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml96m2q9x9vhxvii7n","name":"ÖNEM AVCI","grade":1,"branch":"G","parentPhone":"5426821687","timePref":"2h_first","firstGroupId":"2804cfbd-5cc1-4e88-9f7f-2f5102d06de9","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml96mvltdf060c69ml9","name":"YONCA POLAT","grade":1,"branch":"G","parentPhone":"5058679868","timePref":"2h_first","firstGroupId":"2804cfbd-5cc1-4e88-9f7f-2f5102d06de9","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml96o381ynhn8oyzogl","name":"DEMİR TOKGÖZ","grade":1,"branch":"A","parentPhone":"5399582064","timePref":"4h","firstGroupId":"cd892104-5295-427b-94b1-c3a7b86524a2","lastGroupId":"7ede9457-4ff7-4fce-9899-9ec860e9898d","paidTL":0},{"feePolicy":"full","id":"ml96pa1t0nstiatd6r4j","name":"METE ÖZAYDEMİR","grade":1,"branch":"B","parentPhone":"5303484400","timePref":"2h_first","firstGroupId":"0f8d6663-467d-4bbe-95ec-104aeb8e66d6","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml96rqk1miegwkpb169","name":"CEVAHİR DORA UÇAR","grade":1,"branch":"B","parentPhone":"5392991743","timePref":"2h_first","firstGroupId":"0f8d6663-467d-4bbe-95ec-104aeb8e66d6","lastGroupId":null,"paidTL":0},{"feePolicy":"half","id":"ml96ym35nebcoe8k6pa","name":"DORUK KABAN","grade":1,"branch":"B","parentPhone":"05545386465","timePref":"2h_first","firstGroupId":"0f8d6663-467d-4bbe-95ec-104aeb8e66d6","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"ml9bo3ztxah5yb8uvbp","name":"ZEYNEP ECE ŞAHİN","grade":1,"branch":"F","parentPhone":"5374386754","timePref":"4h","firstGroupId":"cd892104-5295-427b-94b1-c3a7b86524a2","lastGroupId":"912a3d2b-0de7-4662-a2fb-ab699fd28f70","paidTL":0},{"feePolicy":"half","id":"73759b7e-1261-4608-9519-60771739ecd4","name":"ECRİN BAYIR","grade":3,"branch":"A","parentPhone":"05435310043","timePref":"2h_first","firstGroupId":"25fd5eab-f0fb-417a-b876-e13310bbd7a3","lastGroupId":null,"paidTL":0,"createdAt":1770290059615,"updatedAt":1770290059615},{"feePolicy":"full","id":"mlam7pfjjdahjfoi3e","name":"DOĞA YENİŞEHİRLİ","grade":1,"branch":"E","parentPhone":"YOK","timePref":"2h_first","firstGroupId":"0f8d6663-467d-4bbe-95ec-104aeb8e66d6","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"mlam89vbajmxjwwsey8","name":"GÜL YILDIZ","grade":1,"branch":"E","parentPhone":"YOK","timePref":"2h_first","firstGroupId":"0f8d6663-467d-4bbe-95ec-104aeb8e66d6","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"mlan3vce1yioxuqs37s","name":"PUSAT ÖZGÜMÜŞ","grade":3,"branch":"D","parentPhone":"05556600112","timePref":"2h_first","firstGroupId":"25fd5eab-f0fb-417a-b876-e13310bbd7a3","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"mlap4a97drfcytcqoav","name":"ÇAĞAN YILDIRIM","grade":3,"branch":"D","parentPhone":"5076788330","timePref":"2h_first","firstGroupId":"25fd5eab-f0fb-417a-b876-e13310bbd7a3","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"fb902892-e4cd-4ba3-812a-d0459713057b","name":"ARYAN RODİN ATAŞ","grade":3,"branch":"E","parentPhone":"YOK","timePref":"2h_first","firstGroupId":"035a8ad2-9337-4979-9304-2faf19cf18b5","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"e3cdc3a6-bb39-4321-bc3d-2ede20911391","name":"ÇAĞAN TOPÇU","grade":3,"branch":"E","parentPhone":"YOK","timePref":"2h_first","firstGroupId":"035a8ad2-9337-4979-9304-2faf19cf18b5","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"806d5e93-678e-4f08-8af3-f32e59646aa0","name":"MUHAMMET EREN GÜLER","grade":2,"branch":"F","parentPhone":"5343840223","timePref":"2h_first","firstGroupId":"2804cfbd-5cc1-4e88-9f7f-2f5102d06de9","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"b590bb9d-de1f-4f21-a545-fa3aa9ab7db4","name":"ALYA ATEŞ","grade":3,"branch":"A","parentPhone":"05057249069","timePref":"2h_first","firstGroupId":"25fd5eab-f0fb-417a-b876-e13310bbd7a3","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"c27f87a7-4df9-4410-bddb-6055557690e5","name":"AZRA ERGÜN","grade":1,"branch":"B","parentPhone":"5546186920","timePref":"2h_first","firstGroupId":"0f8d6663-467d-4bbe-95ec-104aeb8e66d6","lastGroupId":null,"paidTL":0},{"feePolicy":"free","id":"0119de9a-9c78-4ec1-8c6f-914386030701","name":"İLTERİŞ KESKİN","grade":2,"branch":"C","parentPhone":"YOK","timePref":"2h_first","firstGroupId":"25fd5eab-f0fb-417a-b876-e13310bbd7a3","lastGroupId":null,"paidTL":0},{"feePolicy":"free","id":"577996b9-1493-4218-b7ed-85ddbd66c2a3","name":"ADEN KARATAŞ","grade":2,"branch":"D","parentPhone":"5349808774","timePref":"2h_first","firstGroupId":"25fd5eab-f0fb-417a-b876-e13310bbd7a3","lastGroupId":null,"paidTL":0},{"feePolicy":"full","id":"7b1c2140-e477-403d-9ff7-44103c2602f8","name":"ARIN YILDIZ","grade":1,"branch":"C","parentPhone":"5319127642","timePref":"4h","firstGroupId":"cd892104-5295-427b-94b1-c3a7b86524a2","lastGroupId":"912a3d2b-0de7-4662-a2fb-ab699fd28f70","paidTL":0}],"pricing":{"fee2h":9856,"fee4h":19712}}</script>
+
+<script>
+(function(){
+  const STORAGE_KEY = "zhi_kulup_v6_ui";
+  const $ = id => document.getElementById(id);
+
+  // ✅ Güncel fiyatlar
+  const PRICING = { fee2h: 9856, fee4h: 19712 };
+
+  let state = { groups: [], students: [], pricing: {...PRICING}, personnel: [], salaryConfigs: {} };
+  let editingId = null;
+  let editingPersonnelId = null;
+  let activeGroupId = null; // kurs/etkinlik filtresi
+  let activeTab = "all";   // all | paid | partial | nopay | free
+
+  function uid(){ return (crypto?.randomUUID ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).substr(2))); }
+  function escapeHtml(s){
+    s = String(s ?? "");
+    return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+  function slotTxt(slot){ return slot === "first2" ? "İlk 2" : "Son 2"; }
+  function gradeTxt(g){ return g.grade === 0 ? "Tüm Sınıflar" : (g.grade + ". Sınıf"); }
+
+  // ✅ Grup adı geriye dönük uyum + otomatik üretim
+  function getGroupName(g){
+    const n = (g?.name ?? g?.groupName ?? g?.title ?? "").toString().trim();
+    if(n) return n;
+    const lesson = (g?.lesson ?? "Kulüp").toString().trim();
+    const slot = (g?.slot === "last2") ? "Son 2" : "İlk 2";
+    if(g?.grade && Number(g.grade) !== 0) return `${Number(g.grade)}. Sınıf ${lesson} (${slot})`;
+    return `${lesson} (${slot})`;
+  }
+
+  function normalizeGroups(){
+    state.groups = (state.groups||[]).map(g => {
+      const gg = {...g};
+      gg.name = getGroupName(gg);
+      if(!gg.id) gg.id = uid();
+      if(!gg.slot) gg.slot = "first2";
+      if(gg.type !== "academic" && gg.type !== "activity"){
+        gg.type = (String(gg.lesson||"").toLowerCase().includes("akademik") ? "academic" : "activity");
+      }
+      if(gg.type === "academic" && gg.slot === "last2") gg.slot = "first2"; // akademik son2 olmaz
+      if(gg.grade === undefined || gg.grade === null || Number.isNaN(Number(gg.grade))) gg.grade = 0;
+      gg.grade = Number(gg.grade);
+      return gg;
+    });
+  }
+
+  function defaultGroups(){
+    return [
+      { id: uid(), name:"1. Sınıf Akademik (İlk 2)", grade:1, slot:"first2", type:"academic", lesson:"Akademik" },
+      { id: uid(), name:"2. Sınıf Akademik (İlk 2)", grade:2, slot:"first2", type:"academic", lesson:"Akademik" },
+      { id: uid(), name:"3. Sınıf Akademik (İlk 2)", grade:3, slot:"first2", type:"academic", lesson:"Akademik" },
+      { id: uid(), name:"4. Sınıf Akademik (İlk 2)", grade:4, slot:"first2", type:"academic", lesson:"Akademik" },
+
+      { id: uid(), name:"Resim (İlk 2)", grade:0, slot:"first2", type:"activity", lesson:"Resim" },
+      { id: uid(), name:"Resim (Son 2)", grade:0, slot:"last2", type:"activity", lesson:"Resim" },
+
+      { id: uid(), name:"Satranç (İlk 2)", grade:0, slot:"first2", type:"activity", lesson:"Satranç" },
+      { id: uid(), name:"Satranç (Son 2)", grade:0, slot:"last2", type:"activity", lesson:"Satranç" },
+
+      { id: uid(), name:"Akıl Zeka (İlk 2)", grade:0, slot:"first2", type:"activity", lesson:"Akıl Zeka" },
+      { id: uid(), name:"Akıl Zeka (Son 2)", grade:0, slot:"last2", type:"activity", lesson:"Akıl Zeka" },
+
+      { id: uid(), name:"Beden Eğitimi (İlk 2)", grade:0, slot:"first2", type:"activity", lesson:"Beden" },
+      { id: uid(), name:"Beden Eğitimi (Son 2)", grade:0, slot:"last2", type:"activity", lesson:"Beden" }
+    ];
+  }
+
+  function loadData(){
+    // 1) Dosya içine gömülü yedek varsa (Paneli İndir HTML ile) onu oku
+    const embeddedEl = document.getElementById("embeddedState");
+    const embeddedRaw = embeddedEl ? (embeddedEl.textContent || "").trim() : "";
+    if(embeddedRaw){
+      try{
+        const parsed = JSON.parse(embeddedRaw);
+        let newState = parsed?.data?.groups ? parsed.data : parsed;
+        if(newState?.groups && Array.isArray(newState.groups)){
+          state = newState;
+        }
+      }catch(e){ console.warn("Gömülü yedek okunamadı:", e); }
+    }
+
+    // 2) localStorage verisi varsa onu yükle (gömülü yedeğin üstüne yazabilir)
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if(parsed?.data?.groups) state = parsed.data;
+        else state = parsed;
+      } catch(e){ console.error(e); }
+    }
+    if(!state.groups || !Array.isArray(state.groups) || state.groups.length === 0) state.groups = defaultGroups();
+    if(!state.students || !Array.isArray(state.students)) state.students = [];
+    // geriye dönük: feePolicy yoksa tam ücret kabul et
+    state.students = state.students.map(s => ({ feePolicy: "full", ...s }));
+
+    if(!state.pricing) state.pricing = {...PRICING};
+    state.pricing.fee2h = Number(state.pricing.fee2h ?? PRICING.fee2h);
+    state.pricing.fee4h = Number(state.pricing.fee4h ?? PRICING.fee4h);
+
+    if(!state.personnel || !Array.isArray(state.personnel)) state.personnel = defaultPersonnel();
+    if(!state.salaryConfigs) state.salaryConfigs = {};
+
+    normalizeGroups();
+  }
+
+  function defaultPersonnel(){
+    return [
+      { id: uid(), name: "Yıldırım Kara", role: "manager", percent: 7, desc: "Müdür" },
+      { id: uid(), name: "Özlem Ödemir", role: "deputy", percent: 5, desc: "Müdür Yrd." },
+      { id: uid(), name: "Hamit Yazıcı", role: "accounting", percent: 2, desc: "Muhasebe" },
+      { id: uid(), name: "Züleyha Danyıldız", role: "cleaning", percent: 4, desc: "Temizlik" },
+      { id: uid(), name: "Sevilay Ulucan", role: "teacher_pool", percent: 0, desc: "Koordinatör" },
+      { id: uid(), name: "Kadir Şişman", role: "teacher_pool", percent: 0, desc: "Satranç" },
+      { id: uid(), name: "Şebnem Şişman", role: "teacher_pool", percent: 0, desc: "Akıl Oyunları" },
+      { id: uid(), name: "Hülya Pişkin", role: "teacher_pool", percent: 0, desc: "Beden Eğitimi" },
+      { id: uid(), name: "Sevil Kayrak", role: "teacher_pool", percent: 0, desc: "1. Sınıf Akademik" },
+      { id: uid(), name: "Hatice Öztürk", role: "teacher_pool", percent: 0, desc: "1. Sınıf Akademik" },
+      { id: uid(), name: "Mehmet Ali Tunç", role: "teacher_pool", percent: 0, desc: "3. Sınıf Akademik" }
+    ];
+  }
+
+  function saveData(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+  function calcFee(tp){ return (tp==="4h") ? Number(state.pricing.fee4h) : Number(state.pricing.fee2h); }
+  function getStudentFee(s){
+    // feePolicy: full | half | free
+    const base = (s.customFee !== undefined) ? Number(s.customFee) : calcFee(s.timePref);
+    const fp = (s.feePolicy || "full");
+    if(fp === "free") return 0;
+    if(fp === "half") return Math.round(base * 0.5);
+    return base;
+  }
+  function formatTL(n){ return Number(n||0).toLocaleString('tr-TR') + " TL"; }
+
+  function findGroup(id){ return state.groups.find(g => g.id === id); }
+  function getGroupStudents(gid){ return state.students.filter(s => s.firstGroupId === gid || s.lastGroupId === gid); }
+
+  function getClubsForStudent(s){
+    const first = s.firstGroupId ? (findGroup(s.firstGroupId)?.name || "") : "";
+    const last  = s.lastGroupId  ? (findGroup(s.lastGroupId)?.name  || "") : "";
+    return { first, last };
+  }
+
+  function getSearchQuery(){ return ($("globalSearch").value || "").trim().toLowerCase(); }
+  function studentMatchesQuery(st, q){
+    if(!q) return true;
+    const txt = (st.name + " " + st.grade + "-" + st.branch + " " + (st.parentPhone||"")).toLowerCase();
+    return txt.includes(q);
+  }
+
+  function renderDashboard(){
+    const dash = $("clubDashboard");
+    dash.innerHTML = "";
+    const q = getSearchQuery();
+
+    const sorted = [...state.groups].sort((a,b) =>
+      a.grade - b.grade || a.slot.localeCompare(b.slot) || a.name.localeCompare(b.name,'tr')
+    );
+
+    const groupsToShow = q
+      ? sorted.filter(g => {
+          const list = getGroupStudents(g.id).filter(s => studentMatchesQuery(s, q));
+          return list.length > 0 || (g.name || "").toLowerCase().includes(q);
+        })
+      : sorted;
+
+    groupsToShow.forEach(g => {
+      const listAll = getGroupStudents(g.id).slice().sort((a,b)=>a.grade-b.grade || a.branch.localeCompare(b.branch) || a.name.localeCompare(b.name,'tr'));
+      const list = q ? listAll.filter(s => studentMatchesQuery(s, q)) : listAll;
+      const count = list.length;
+
+      const card = document.createElement("div");
+      card.className = "club-card";
+      card.style.borderLeft = (g.type === "academic") ? "5px solid #4f46e5" : "5px solid #10b981";
+
+      card.innerHTML = `
+        <div>
+          <h3 data-toggle="${g.id}">
+            <span class="caret">▶</span>
+            <span class="clubName">${escapeHtml(g.name || "İsimsiz Grup")}</span>
+          </h3>
+          <div class="club-info">${escapeHtml(gradeTxt(g))} • ${escapeHtml(slotTxt(g.slot))}</div>
+        </div>
+
+        <div class="club-stat">${count} Öğrenci</div>
+
+        <div class="club-actions">
+          <button class="icon-btn" title="Excel İndir" data-ex="${g.id}">Ex</button>
+          <button class="icon-btn" title="Word İndir" data-wd="${g.id}">Wd</button>
+        </div>
+
+        <div class="club-students" id="clubStudents_${g.id}">
+          ${count === 0
+            ? `<div class="st"><div class="sub">Bu grupta öğrenci yok.</div></div>`
+            : list.map(s => {
+                const sub = `${s.grade}-${s.branch} • ${s.parentPhone || ""}`;
+                return `<div class="st">
+                          <div>
+                            <b>${escapeHtml(s.name)}</b>
+                            <div class="sub">${escapeHtml(sub)}</div>
+                          </div>
+                          <div class="sub">${s.timePref==="4h" ? "4 Saat" : "2 Saat"}</div>
+                        </div>`;
+            }).join("")}
+        </div>
+      `;
+      dash.appendChild(card);
+
+      card.querySelector('[data-toggle="'+g.id+'"]').addEventListener("click", () => {
+        // Kulüp adına tıklayınca o kulübün öğrencilerini aç (tabloya filtre uygula)
+        activeGroupId = g.id;
+        renderTable();
+        renderDashboard();
+
+        // tabloya yumuşak kaydır
+        const tableCard = document.querySelector(".table-card");
+        if(tableCard) tableCard.scrollIntoView({behavior:"smooth", block:"start"});
+      });
+
+      card.querySelector('[data-ex="'+g.id+'"]').onclick = () => exportGroupExcel(g.id);
+      card.querySelector('[data-wd="'+g.id+'"]').onclick = () => exportGroupWord(g.id);
+    });
+  }
+
+  function renderTable(){
+    const tbody = $("studentsTbody");
+    tbody.innerHTML = "";
+    const q = getSearchQuery();
+
+    // Grup filtresi (dashboard kartından)
+    const groupName = activeGroupId ? (findGroup(activeGroupId)?.name || "Grup") : "";
+
+    let list = state.students.slice();
+    if(activeGroupId){
+      list = list.filter(s => s.firstGroupId === activeGroupId || s.lastGroupId === activeGroupId);
+    }
+
+    // Sekme filtresi
+    list = list.filter(s => {
+      const fee = getStudentFee(s);
+      const paid = Number(s.paidTL || 0);
+
+      if(activeTab === "paid")    return fee > 0 && paid >= fee;
+      if(activeTab === "partial") return fee > 0 && paid > 0 && paid < fee;
+      if(activeTab === "nopay")   return fee > 0 && paid <= 0;
+      if(activeTab === "free")    return fee === 0;
+      return true; // all
+    });
+
+    // Arama filtresi
+    list = list.filter(s => studentMatchesQuery(s, q));
+    list.sort((a,b) => a.grade - b.grade || a.branch.localeCompare(b.branch) || a.name.localeCompare(b.name,'tr'));
+
+    let grandFee = 0, grandPaid = 0;
+    state.students.forEach(s => { grandFee += getStudentFee(s); grandPaid += Number(s.paidTL || 0); });
+
+    $("totalStudents").textContent = state.students.length;
+    $("totalMoney").textContent = formatTL(grandPaid);
+    $("totalDebt").textContent = formatTL(grandFee - grandPaid);
+    $("recordCount").textContent = list.length + " kayıt";
+
+    // Başlık ve aktif grup rozeti
+    const titleBase =
+      (activeTab === "paid") ? "Ödeme Yapan Öğrenciler" :
+      (activeTab === "partial") ? "Kısmi Ödeme Yapan Öğrenciler" :
+      (activeTab === "nopay") ? "Ödeme Yapmayan Öğrenciler" :
+      (activeTab === "free") ? "Ücretsiz Öğrenciler" :
+      "Kayıtlı Öğrenciler";
+    $("tableTitle").textContent = activeGroupId ? (titleBase + " • " + groupName) : titleBase;
+
+    const pill = $("activeGroupPill");
+    if(activeGroupId){
+      pill.style.display = "inline-block";
+      pill.innerHTML = `<span class="filter-pill">Filtre: ${escapeHtml(groupName)} <button id="btnClearGroupFilter" title="Filtreyi kaldır">×</button></span>`;
+      $("btnClearGroupFilter").onclick = () => { activeGroupId = null; renderTable(); renderDashboard(); };
+    }else{
+      pill.style.display = "none";
+      pill.innerHTML = "";
+    }
+
+    list.forEach(s => {
+      const tr = document.createElement("tr");
+
+      const g1 = findGroup(s.firstGroupId);
+      const g2 = findGroup(s.lastGroupId);
+
+      let gName = "";
+      if(s.timePref === "4h") gName = (g1?.name || "-") + " / " + (g2?.name || "-");
+      else if(s.timePref === "2h_first") gName = g1?.name || "-";
+      else gName = g2?.name || "-";
+
+      const fee = getStudentFee(s);
+      const paid = Number(s.paidTL || 0);
+      const debt = fee - paid;
+
+      // Durum etiketi (daha kibar) + satır rengi
+      let statusBadge = "";
+      let rowClass = "";
+      if(fee === 0){
+        statusBadge = '<span class="badge" style="background:#e2e8f0;color:#334155;">Ücretsiz</span>';
+        rowClass = "row-free";
+      } else if(paid <= 0){
+        statusBadge = '<span class="badge" style="background:#ffedd5;color:#9a3412;">Ödeme Bekliyor</span>';
+        rowClass = "row-nopay";
+      } else if(paid < fee){
+        statusBadge = '<span class="badge" style="background:#fef9c3;color:#854d0e;">Kısmi Ödeme</span>';
+        rowClass = "row-partial";
+      } else {
+        statusBadge = '<span class="badge" style="background:#dcfce7;color:#166534;">Ödendi</span>';
+        rowClass = "row-paid";
+      }
+      tr.className = rowClass;
+
+      tr.innerHTML = `
+        <td><div style="font-weight:900;">${escapeHtml(s.name)}</div><div style="font-size:11px;color:#64748b">${s.timePref==="4h" ? "4 Saat" : "2 Saat"}</div></td>
+        <td><span class="badge badge-gray">${s.grade}-${s.branch}</span></td>
+        <td>${escapeHtml(s.parentPhone || "")}</td>
+        <td style="font-size:12px;">${escapeHtml(gName)}</td>
+        <td>${statusBadge}</td>
+        <td style="text-align:right;">
+          <div class="money">${formatTL(fee)}</div>
+          <div style="font-size:11px;color:#64748b;">Ödenen: ${formatTL(paid)}</div>
+          ${debt>0 ? `<div class="money text-red">-${formatTL(debt)}</div>` : ""}
+        </td>
+        <td style="text-align:right;">
+          <button class="btn-sm" onclick="promptPayment('${s.id}')">Öde</button>
+          <button class="btn-sm" onclick="editStudent('${s.id}')">Düzenle</button>
+          <button class="btn-sm" style="color:#ef4444;" onclick="delStudent('${s.id}')">Sil</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // --- Payment / CRUD ---
+  window.promptPayment = function(id){
+    const s = state.students.find(x => x.id === id);
+    if(!s) return;
+    const paid = Number(s.paidTL || 0);
+    const fee = getStudentFee(s);
+    const input = prompt(`Öğrenci: ${s.name}\nToplam Ücret: ${fee} TL\nŞu ana kadar ödenen: ${paid} TL\n\nYENİ TOPLAM ÖDENEN MİKTARI GİRİNİZ:`, paid);
+    if(input !== null){
+      s.paidTL = Number(input);
+      saveData(); renderTable(); renderDashboard();
+    }
+  };
+
+  window.delStudent = function(id){
+    if(confirm("Bu öğrenci kaydı silinecek. Emin misiniz?")) {
+      state.students = state.students.filter(s => s.id !== id);
+      saveData(); renderTable(); renderDashboard();
+    }
+  };
+
+  window.editStudent = function(id){
+    const s = state.students.find(x => x.id === id);
+    if(!s) return;
+    editingId = id;
+    $("modalTitle").textContent = "Öğrenci Düzenle";
+    $("sName").value = s.name;
+    $("sGrade").value = s.grade;
+    $("sBranch").value = s.branch;
+    $("sPhone").value = s.parentPhone;
+    $("sTime").value = s.timePref;
+    $("sFeePolicy").value = (s.feePolicy || "full");
+
+    updateGroupSelects();
+
+    if(s.timePref === "2h_first" || s.timePref === "2h_last"){
+      $("selSingleGroup").value = s.firstGroupId || s.lastGroupId;
+    } else {
+      $("selFirstGroup").value = s.firstGroupId;
+      $("selLastGroup").value = s.lastGroupId;
+    }
+    $("modalOverlay").style.display = "flex";
+  };
+
+  // --- MODAL ---
+  function resetForm(){
+    editingId = null;
+    $("modalTitle").textContent = "Yeni Öğrenci Kaydı";
+    $("sName").value = ""; $("sGrade").value = ""; $("sBranch").value = "";
+    $("sPhone").value = ""; $("sTime").value = "";
+    $("sFeePolicy").value = "full";
+    $("groupSelectors").style.display = "none";
+    $("selSingleGroup").innerHTML = "";
+    $("selFirstGroup").innerHTML = "";
+    $("selLastGroup").innerHTML = "";
+  }
+
+  $("btnOpenModal").onclick = () => { resetForm(); $("modalOverlay").style.display = "flex"; };
+  $("btnCloseModal").onclick = () => $("modalOverlay").style.display = "none";
+  $("btnCancelModal").onclick = () => $("modalOverlay").style.display = "none";
+
+  $("sTime").onchange = updateGroupSelects;
+  $("sGrade").onchange = updateGroupSelects;
+
+  function updateGroupSelects(){
+    const time = $("sTime").value;
+    const grade = Number($("sGrade").value);
+    if(!time || !grade) { $("groupSelectors").style.display = "none"; return; }
+
+    $("groupSelectors").style.display = "block";
+    const singleDiv = $("singleGroupDiv");
+    const doubleDiv = $("doubleGroupDiv");
+
+    const filterG = (slot, typeRestrict) => state.groups.filter(g => {
+      if(g.grade !== 0 && g.grade !== grade) return false;
+      if(g.slot !== slot) return false;
+      if(typeRestrict && g.type !== typeRestrict) return false;
+      if(g.type === "academic" && slot === "last2") return false;
+      return true;
+    });
+
+    const fill = (el, list) => {
+      el.innerHTML = '<option value="">Seçiniz...</option>';
+      list.forEach(g => el.innerHTML += `<option value="${g.id}">${escapeHtml(g.name)}</option>`);
+    };
+
+    if(time === "4h"){
+      singleDiv.style.display = "none";
+      doubleDiv.style.display = "block";
+      fill($("selFirstGroup"), filterG("first2"));
+      fill($("selLastGroup"), filterG("last2", "activity"));
+    } else {
+      singleDiv.style.display = "block";
+      doubleDiv.style.display = "none";
+      if(time === "2h_first") fill($("selSingleGroup"), filterG("first2"));
+      else fill($("selSingleGroup"), filterG("last2", "activity"));
+    }
+  }
+
+  $("btnSaveModal").onclick = () => {
+    const name = $("sName").value.trim();
+    const grade = Number($("sGrade").value);
+    const branch = $("sBranch").value;
+    const phone = $("sPhone").value;
+    const time = $("sTime").value;
+    const feePolicy = $("sFeePolicy").value || "full";
+
+    if(!name || !grade || !branch || !time) { alert("Lütfen tüm alanları doldurun."); return; }
+
+    let g1 = null, g2 = null;
+    if(time === "4h"){
+      g1 = $("selFirstGroup").value; g2 = $("selLastGroup").value;
+      if(!g1 || !g2) { alert("Lütfen iki grubu da seçin."); return; }
+      if(g1 === g2) { alert("Çakışma: İlk 2 ve Son 2 aynı olamaz."); return; }
+    } else {
+      const g = $("selSingleGroup").value;
+      if(!g) { alert("Lütfen grubu seçin."); return; }
+      if(time === "2h_first") g1 = g; else g2 = g;
+    }
+
+    if(editingId){
+      const s = state.students.find(x => x.id === editingId);
+      s.name = name; s.grade = grade; s.branch = branch; s.parentPhone = phone;
+      s.timePref = time; s.firstGroupId = g1; s.lastGroupId = g2; s.feePolicy = feePolicy;
+    } else {
+      state.students.push({
+        id: uid(), name, grade, branch, parentPhone: phone, timePref: time,
+        firstGroupId: g1, lastGroupId: g2, paidTL: 0, feePolicy: feePolicy
+      });
+    }
+    saveData(); $("modalOverlay").style.display = "none"; renderTable(); renderDashboard();
+  };
+
+  // --- EXPORT JSON/IMPORT ---
+  $("btnExportJson").onclick = () => {
+    state.pricing = {...state.pricing, ...PRICING};
+    const blob = new Blob([JSON.stringify(state, null, 2)], {type: "application/json"});
+    saveAs(blob, "kulup_yedek.json");
+  };
+
+  $("btnImportJson").onclick = () => {
+    const inp = document.createElement("input");
+    inp.type="file"; inp.accept="application/json";
+    inp.onchange = e => {
+      const file = e.target.files[0];
+      if(!file) return;
+      const fr = new FileReader();
+      fr.onload = () => {
+        try {
+          const parsed = JSON.parse(fr.result);
+          let newState = parsed?.data?.groups ? parsed.data : parsed;
+          if(!newState.groups || !Array.isArray(newState.groups)) throw new Error("Grup verisi yok");
+          if(!newState.students || !Array.isArray(newState.students)) newState.students = [];
+
+          if(!newState.pricing) newState.pricing = {...PRICING};
+          newState.pricing.fee2h = PRICING.fee2h;
+          newState.pricing.fee4h = PRICING.fee4h;
+
+          state = newState;
+          normalizeGroups();
+
+          saveData();
+          alert("Yedek başarıyla yüklendi.");
+          renderTable(); renderDashboard();
+        } catch(err){
+          alert("Dosya okunamadı veya bozuk.");
+          console.error(err);
+        }
+      };
+      fr.readAsText(file);
+    };
+    inp.click();
+  };
+
+  $("btnReset").onclick = () => {
+    if(confirm("⚠️ DİKKAT: Tüm veriler kalıcı olarak silinecek. Onaylıyor musunuz?")) {
+      state = { groups: defaultGroups(), students: [], pricing: {...PRICING}, personnel: defaultPersonnel(), salaryConfigs: {} };
+      saveData(); location.reload();
+    }
+  };
+
+  // --- Excel/Word (tek grup) ---
+  window.exportGroupExcel = function(gid){
+    const g = findGroup(gid);
+    const list = getGroupStudents(gid);
+    const rows = list.map((s,i) => {
+      const fee = getStudentFee(s), paid = Number(s.paidTL||0);
+      const clubs = getClubsForStudent(s);
+      return {
+        "Sıra": i+1,
+        "Ad Soyad": s.name,
+        "Sınıf": s.grade+"-"+s.branch,
+        "Tel": s.parentPhone,
+        "Günlük Saat": (s.timePref==="4h" ? "4 Saat" : "2 Saat"),
+        "İlk 2 Kulüp": clubs.first || "-",
+        "Son 2 Kulüp": clubs.last || "-",
+        "Ücret": fee,
+        "Ödenen": paid,
+        "Kalan": fee - paid
+      };
+    });
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Liste");
+    XLSX.writeFile(wb, `${(g?.name || "Grup")} (${list.length} Öğrenci).xlsx`);
+  };
+
+  window.exportGroupWord = async function(gid){
+    const g = findGroup(gid);
+    const list = getGroupStudents(gid);
+
+    const doc = new docx.Document({
+      sections: [{
+        children: [
+          new docx.Paragraph({ text: (g?.name || "Grup"), heading: docx.HeadingLevel.HEADING_1 }),
+          new docx.Table({
+            rows: [
+              new docx.TableRow({
+                children: ["Ad Soyad","Sınıf","Telefon"].map(t =>
+                  new docx.TableCell({ children: [new docx.Paragraph({text:t, bold:true})] })
+                )
+              }),
+              ...list.map(s => new docx.TableRow({
+                children: [s.name, `${s.grade}-${s.branch}`, s.parentPhone || ""].map(t =>
+                  new docx.TableCell({ children: [new docx.Paragraph(t)] })
+                )
+              }))
+            ],
+            width: { size: 100, type: docx.WidthType.PERCENTAGE }
+          }),
+          new docx.Paragraph({ text: "", spacing:{before:220, after:120} }),
+          new docx.Paragraph({ text: "Yıldırım KARA", alignment: docx.AlignmentType.RIGHT, spacing:{before:240} }),
+          new docx.Paragraph({ text: "Okul Müdürü", alignment: docx.AlignmentType.RIGHT })
+        ]
+      }]
+    });
+
+    const blob = await docx.Packer.toBlob(doc);
+    saveAs(blob, `${(g?.name || "Grup")} (${list.length} Öğrenci).docx`);
+  };
+
+  // Toplu Word
+  async function exportMergedWord(isTeacherMode){
+    const groups = [...state.groups].sort((a,b)=>a.grade-b.grade || a.name.localeCompare(b.name,'tr'));
+    const children = [];
+
+    for(const g of groups){
+      const list = getGroupStudents(g.id);
+      if(list.length===0) continue;
+
+      children.push(new docx.Paragraph({ text: `${g.name} (${list.length} Öğrenci)`, heading: docx.HeadingLevel.HEADING_1, spacing:{before:400, after:200} }));
+
+      const headerTexts = isTeacherMode
+        ? ["No","Öğrenci","Sınıf","Tel"]
+        : ["No","Öğrenci","Sınıf","Tel","Günlük Saat","İlk 2 Kulüp","Son 2 Kulüp","Ücret","Ödenen","Kalan"];
+
+      const headerRow = new docx.TableRow({
+        children: headerTexts.map(t => new docx.TableCell({
+          children:[new docx.Paragraph({text:t, bold:true})],
+          shading:{fill:"f3f4f6"}
+        }))
+      });
+
+      const rows = list.map((s,idx)=>{
+        const base = [String(idx+1), s.name, `${s.grade}-${s.branch}`, s.parentPhone||""];
+        if(isTeacherMode){
+          return new docx.TableRow({children: base.map(c=>new docx.TableCell({children:[new docx.Paragraph(c)]}))});
+        }
+        const fee = getStudentFee(s), paid = Number(s.paidTL||0);
+        const clubs = getClubsForStudent(s);
+        const cells = [...base, (s.timePref==="4h"?"4 Saat":"2 Saat"), clubs.first||"-", clubs.last||"-", formatTL(fee), formatTL(paid), formatTL(fee-paid)];
+        return new docx.TableRow({children: cells.map(c=>new docx.TableCell({children:[new docx.Paragraph(c)]}))});
+      });
+
+      children.push(new docx.Table({rows:[headerRow, ...rows], width:{size:100, type:docx.WidthType.PERCENTAGE}}));
+      children.push(new docx.Paragraph({ text: "", spacing:{before:220, after:120} }));
+      children.push(new docx.Paragraph({ text: "Yıldırım KARA", alignment: docx.AlignmentType.RIGHT, spacing:{before:240} }));
+      children.push(new docx.Paragraph({ text: "Okul Müdürü", alignment: docx.AlignmentType.RIGHT }));
+      children.push(new docx.Paragraph({ children:[new docx.PageBreak()] }));
+    }
+
+    const doc = new docx.Document({sections:[{children}]});
+    const blob = await docx.Packer.toBlob(doc);
+    saveAs(blob, isTeacherMode ? "Ogretmen_Listeleri_Toplu.docx" : "Idare_Listeleri_Toplu.docx");
+  }
+
+  function exportMergedExcel(){
+    const wb = XLSX.utils.book_new();
+    const groups = [...state.groups].sort((a,b)=>a.grade-b.grade || a.name.localeCompare(b.name,'tr'));
+    groups.forEach(g=>{
+      const list = getGroupStudents(g.id);
+      if(list.length===0) return;
+      const rows = list.map((s,i)=>{
+        const fee = getStudentFee(s), paid = Number(s.paidTL||0);
+        const clubs = getClubsForStudent(s);
+        return {
+          "Sıra": i+1,
+          "Öğrenci": s.name,
+          "Sınıf": s.grade+"-"+s.branch,
+          "Tel": s.parentPhone,
+          "Günlük Saat": (s.timePref==="4h" ? "4 Saat" : "2 Saat"),
+          "İlk 2 Kulüp": clubs.first || "-",
+          "Son 2 Kulüp": clubs.last || "-",
+          "Ücret": fee,
+          "Ödenen": paid,
+          "Kalan": fee-paid
+        };
+      });
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const sheetName = (g.name + " (" + list.length + ")").substring(0,31);
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    });
+    XLSX.writeFile(wb, "Idare_Listeleri_Toplu.xlsx");
+  }
+
+  $("btnTeachersWord").onclick = () => exportMergedWord(true);
+  $("btnAdminWord").onclick = () => exportMergedWord(false);
+  $("btnAllExcel").onclick = exportMergedExcel;
+
+  // --- ✅ GROUP MANAGER UI ---
+  const groupModal = $("groupModalOverlay");
+  const btnManageGroups = $("btnManageGroups");
+  const btnCloseGroupModal = $("btnCloseGroupModal");
+  const btnAddGroup = $("btnAddGroup");
+  const btnRefreshGroups = $("btnRefreshGroups");
+  const groupsTbody = $("groupsTbody");
+
+  function openGroupModal(){
+    renderGroupsTable();
+    groupModal.style.display = "flex";
+  }
+  function closeGroupModal(){
+    groupModal.style.display = "none";
+  }
+
+  function renderGroupsTable(){
+    normalizeGroups();
+    const arr = [...state.groups].sort((a,b)=>a.grade-b.grade || a.slot.localeCompare(b.slot) || a.name.localeCompare(b.name,'tr'));
+    groupsTbody.innerHTML = "";
+
+    arr.forEach(g => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td style="padding:12px 14px; border-bottom:1px solid #e2e8f0; font-weight:900;">${escapeHtml(g.name)}</td>
+        <td style="padding:12px 14px; border-bottom:1px solid #e2e8f0;">${g.grade===0 ? "Tüm" : g.grade}</td>
+        <td style="padding:12px 14px; border-bottom:1px solid #e2e8f0;">${g.slot==="first2" ? "İlk 2" : "Son 2"}</td>
+        <td style="padding:12px 14px; border-bottom:1px solid #e2e8f0;">${g.type==="academic" ? "Akademik" : "Etkinlik"}</td>
+        <td style="padding:12px 14px; border-bottom:1px solid #e2e8f0; text-align:right;">
+          <button class="btn-sm" onclick="renameGroupUI('${g.id}')">Ad</button>
+          <button class="btn-sm" style="color:#ef4444;" onclick="deleteGroupUI('${g.id}')">Sil</button>
+        </td>
+      `;
+      groupsTbody.appendChild(tr);
+    });
+
+    if(arr.length === 0){
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td colspan="5" style="padding:14px; color:#64748b;">Henüz grup yok.</td>`;
+      groupsTbody.appendChild(tr);
+    }
+  }
+
+  window.renameGroupUI = function(gid){
+    const g = findGroup(gid);
+    if(!g) return;
+    const input = prompt("Yeni grup adını girin:", g.name);
+    if(input === null) return;
+    const nn = input.trim();
+    if(!nn){ alert("Grup adı boş olamaz."); return; }
+    g.name = nn;
+    saveData();
+    renderGroupsTable();
+    renderDashboard();
+    renderTable();
+  };
+
+  window.deleteGroupUI = function(gid){
+    const g = findGroup(gid);
+    if(!g) return;
+
+    const linkedCount = state.students.filter(s => s.firstGroupId===gid || s.lastGroupId===gid).length;
+    const ok = confirm(`"${g.name}" grubu silinecek.\nBu gruba bağlı ${linkedCount} öğrenci var. (Bu öğrencilerin grup alanı boşaltılacak.)\nDevam edilsin mi?`);
+    if(!ok) return;
+
+    state.groups = state.groups.filter(x => x.id !== gid);
+    state.students.forEach(s => {
+      if(s.firstGroupId === gid) s.firstGroupId = null;
+      if(s.lastGroupId === gid) s.lastGroupId = null;
+    });
+
+    saveData();
+    renderGroupsTable();
+    renderDashboard();
+    renderTable();
+  };
+
+  function addGroupFlow(){
+    const gradeStr = prompt("Kaçıncı sınıf grubu? (1-4) / Tüm sınıflar için 0:", "0");
+    if(gradeStr === null) return;
+    const grade = Number(gradeStr);
+    if(Number.isNaN(grade) || grade<0 || grade>4){ alert("Geçersiz sınıf."); return; }
+
+    const lesson = prompt("Ders adı? (Örn: Resim / Satranç / Akıl Zeka / Beden / Akademik):", "Resim");
+    if(lesson === null) return;
+    const lessonTrim = lesson.trim();
+    if(!lessonTrim){ alert("Ders adı boş olamaz."); return; }
+
+    const slot = prompt("Saat dilimi? first2 / last2", "first2");
+    if(slot === null) return;
+    if(slot !== "first2" && slot !== "last2"){ alert("Saat 'first2' veya 'last2' olmalı."); return; }
+
+    const typeDefault = lessonTrim.toLowerCase().includes("akademik") ? "academic" : "activity";
+    const type = prompt("Grup türü? academic / activity", typeDefault);
+    if(type === null) return;
+    if(type !== "academic" && type !== "activity"){ alert("Tür 'academic' veya 'activity' olmalı."); return; }
+
+    if(type === "academic" && slot === "last2"){
+      alert("Akademik dersler sadece İlk 2 saatte olabilir. (Son 2 yasak)");
+      return;
+    }
+
+    const name = prompt("Grup adı (boş bırakılırsa otomatik):", "");
+    if(name === null) return;
+
+    const newGroup = {
+      id: uid(),
+      name: (name && name.trim()) ? name.trim() : null,
+      grade: grade,
+      slot: slot,
+      type: type,
+      lesson: lessonTrim,
+      createdAt: Date.now()
+    };
+
+    state.groups.push(newGroup);
+    normalizeGroups();
+    saveData();
+
+    renderGroupsTable();
+    renderDashboard();
+    renderTable();
+  }
+
+  if(btnManageGroups) btnManageGroups.onclick = openGroupModal;
+  if(btnCloseGroupModal) btnCloseGroupModal.onclick = closeGroupModal;
+  if(btnRefreshGroups) btnRefreshGroups.onclick = renderGroupsTable;
+  if(btnAddGroup) btnAddGroup.onclick = addGroupFlow;
+
+  if(groupModal){
+    groupModal.addEventListener("click", (e) => {
+      if(e.target === groupModal) closeGroupModal();
+    });
+  }
+
+
+  // --- PERSONEL VE MAAŞ YÖNETİMİ ---
+  const salaryModal = $("salaryModalOverlay");
+  const personnelEditModal = $("personnelEditModalOverlay");
+
+  if($("btnManageSalaries")) $("btnManageSalaries").onclick = openSalaryModal;
+  if($("btnCloseSalaryModal")) $("btnCloseSalaryModal").onclick = () => salaryModal.style.display = "none";
+  if($("btnAddPersonnel")) $("btnAddPersonnel").onclick = () => openPersonnelEditModal();
+  if($("btnClosePersonnelEditModal")) $("btnClosePersonnelEditModal").onclick = () => personnelEditModal.style.display = "none";
+  if($("btnCancelPersonnelEdit")) $("btnCancelPersonnelEdit").onclick = () => personnelEditModal.style.display = "none";
+
+  function openSalaryModal(){
+    const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+    $("salMonth").value = currentMonth;
+
+    // Auto-fill some defaults if available
+    $("salStudentCount").value = state.students.length;
+    $("salWorkDays").value = 20; // Default
+    $("salHourlyRate").value = 64; // Default
+    $("salDailyHours").value = 4; // Default
+    $("salGroupCount").value = 1; // Default
+
+    // Geriye dönük uyumluluk: eski autoCalculatePool artık yok, updateNewPricingTable kullanılıyor
+    // renderSalaries(); // updateNewPricingTable içerisinde çağrıldığı için burada çağırmaya gerek yok
+    salaryModal.style.display = "flex";
+  }
+
+  function getRoleDesc(role, customPercent){
+    if(role === "manager") return "%7 Müdür";
+    if(role === "deputy") return "%5 Müdür Yrd.";
+    if(role === "accounting") return "%2 Muhasebe";
+    if(role === "cleaning") return "%4 Temizlik";
+    if(role === "teacher_pool") return "%55 Öğretmen Havuzu";
+    return `%${customPercent} Özel`;
+  }
+
+  function renderSalaries(){
+    const tbody = $("personnelTbody");
+    const tfoot = $("personnelTfoot");
+    tbody.innerHTML = "";
+    tfoot.innerHTML = "";
+
+    const totalPool = Number($("salTotalPool").value) || 0;
+
+    // Gider Kalemleri Özet Tablosu Güncellemesi
+    if ($("summaryTotalPool")) $("summaryTotalPool").textContent = formatTL(totalPool);
+    if ($("sumTemelGider")) $("sumTemelGider").textContent = formatTL(totalPool * 0.26);
+    if ($("sumDenetleme")) $("sumDenetleme").textContent = formatTL(totalPool * 0.01);
+    if ($("sumMudur")) $("sumMudur").textContent = formatTL(totalPool * 0.07);
+    if ($("sumMdYrd")) $("sumMdYrd").textContent = formatTL(totalPool * 0.05);
+    if ($("sumOgretmen")) $("sumOgretmen").textContent = formatTL(totalPool * 0.55);
+    if ($("sumMuhasebe")) $("sumMuhasebe").textContent = formatTL(totalPool * 0.02);
+    if ($("sumTemizlik")) $("sumTemizlik").textContent = formatTL(totalPool * 0.04);
+    const civilServantAylik = Number($("salCivilServant").value) || 13184.77;
+    const hourlyRate = Number($("salHourlyRate").value) || 64;
+    const dailyHours = Number($("salDailyHours").value) || 4;
+    const workDays = Number($("salWorkDays").value) || 20;
+    const groupCount = Number($("salGroupCount").value) || 1;
+
+    // Aylik Ucret Formul = Saat Ucreti * Gunluk Saat * Aylik is Gunu Sayisi
+    const aylikUcret = hourlyRate * dailyHours * workDays;
+
+    // Brüt Tavan Hesaplamaları (Devlet Memuru Aylığı * Çarpan)
+    const tavanManager = civilServantAylik * 2.75; // Müdür - Koordinatör Öğretmen
+    const tavanDeputy = civilServantAylik * 2.50;  // Müdür Yardımcısı
+    const tavanTeacher = civilServantAylik * 4.00; // Kadrolu Öğretmen
+    const tavanUsta = civilServantAylik * 4.00;    // Usta Öğretici
+    const tavanAccounting = civilServantAylik * 2.00; // Muhasebe
+    const tavanCleaning = civilServantAylik * 2.00; // Temizlik
+
+    // Öğretmen havuzundakileri sayalım
+    const teacherPoolCount = state.personnel.filter(p => p.role === "teacher_pool").length;
+    const teacherPoolTotal = totalPool * 0.55;
+    const teacherPerPerson = teacherPoolCount > 0 ? (teacherPoolTotal / teacherPoolCount) : 0;
+
+    // Ders saati tablosunda hesaplanan saat ücreti
+    const calculatedHourlyRate = window.calculatedDersSaatUcreti || hourlyRate;
+
+    // Hesaplamalar
+    let totalGross = 0;
+    let totalTax1 = 0;
+    let totalTax2 = 0;
+    let totalNet = 0;
+
+    state.personnel.forEach(p => {
+      let gross = 0;
+      let maxGross = Infinity;
+
+      if(p.role === "manager") {
+        gross = totalPool * 0.07;
+        maxGross = tavanManager;
+      }
+      else if(p.role === "deputy") {
+        gross = totalPool * 0.05;
+        maxGross = tavanDeputy;
+      }
+      else if(p.role === "accounting") {
+        gross = totalPool * 0.02;
+        maxGross = tavanAccounting;
+      }
+      else if(p.role === "cleaning") {
+        gross = totalPool * 0.04;
+        maxGross = tavanCleaning;
+      }
+      else if(p.role === "teacher_pool") {
+        let isCoordinator = p.name.toLowerCase().includes("koordinatör");
+        let isUsta = p.name.toLowerCase().includes("usta öğretici");
+
+        // Yeni Kural: Öğretmen, Koordinatör ve Usta Öğreticiler için maaş =
+        // Ders Yapılan Gün Sayısı * Günlük Ders Saati Toplamı * Hesaplanan Saat Ücreti
+        // (Eğer isimlerinde bunlar geçiyorsa yeni formülü uyguluyoruz, yoksa eski havuza göre hesaplar)
+        if (p.name.toLowerCase().includes("öğretmen") || isCoordinator || isUsta) {
+           const dailyTotalLessons = Number($("yeni_dersDailyTotal").value) || 0;
+           // p.customLessons diyerek kişi bazlı bir ders saati de olabilirdi, ama genel "Günlük Ders Saati" ile çarpıyoruz
+           // Öğretmenlerin aylık girdiği toplam ders saati: Günlük Ders Saati * Aylık İş Günü
+           const aylikDersSayisi = dailyTotalLessons * workDays;
+           gross = aylikDersSayisi * calculatedHourlyRate;
+        } else {
+           // Havuzu eşit bölme varsayımı (isim belirtilmemişse)
+           gross = teacherPerPerson;
+        }
+        maxGross = isCoordinator ? tavanManager : (isUsta ? tavanUsta : tavanTeacher);
+      }
+      else if(p.role === "custom") {
+        gross = totalPool * (Number(p.percent) / 100);
+      }
+
+      // Tavan sınırını uygula
+      if (gross > maxGross) {
+        gross = maxGross;
+      }
+
+      const tax1 = gross * 0.15; // Gelir Vergisi %15
+      const tax2 = gross * 0.00759; // Damga Vergisi binde 7.59
+
+      let exemption = 0;
+      if (p.role === "accounting") {
+        exemption = gross * 0.0935; // Muhasebe personeli için %9.35 Vergi Muafiyeti
+      }
+
+      const net = gross - tax1 - tax2 + exemption;
+
+      totalGross += gross;
+      totalTax1 += tax1;
+      totalTax2 += tax2;
+      totalNet += net;
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td style="padding:10px; border-bottom:1px solid #e2e8f0; font-weight:bold;">${escapeHtml(p.name)}</td>
+        <td style="padding:10px; border-bottom:1px solid #e2e8f0;">${getRoleDesc(p.role, p.percent)}</td>
+        <td style="padding:10px; border-bottom:1px solid #e2e8f0; text-align:right;">${formatTL(gross)}</td>
+        <td style="padding:10px; border-bottom:1px solid #e2e8f0; text-align:right; color:#ef4444;">-${formatTL(tax1)}</td>
+        <td style="padding:10px; border-bottom:1px solid #e2e8f0; text-align:right; color:#ef4444;">-${formatTL(tax2)}</td>
+        <td style="padding:10px; border-bottom:1px solid #e2e8f0; text-align:right; color:#10b981; font-weight:bold;">${formatTL(net)}</td>
+        <td style="padding:10px; border-bottom:1px solid #e2e8f0; text-align:center;">
+          <button class="btn-sm" onclick="openPersonnelEditModal('${p.id}')">Düzenle</button>
+          <button class="btn-sm" style="color:#ef4444;" onclick="deletePersonnel('${p.id}')">Sil</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // Ekstra Kesintiler/Giderler: Temel Giderler (%26) ve Denetleme Yetkilisi (%1)
+    const basicExpenses = totalPool * 0.26;
+    const auditorExpense = totalPool * 0.01;
+
+    // Temel Giderler Satırı
+    const expensesTr = document.createElement("tr");
+    expensesTr.style.background = "#f1f5f9";
+    expensesTr.innerHTML = `
+      <td style="padding:10px; border-bottom:1px solid #cbd5e1; font-weight:bold; color:#475569;">Temel Giderler (Materyal vb.)</td>
+      <td style="padding:10px; border-bottom:1px solid #cbd5e1; color:#475569;">%26 Havuzdan</td>
+      <td style="padding:10px; border-bottom:1px solid #cbd5e1; text-align:right;">${formatTL(basicExpenses)}</td>
+      <td style="padding:10px; border-bottom:1px solid #cbd5e1; text-align:right; color:#94a3b8;">-</td>
+      <td style="padding:10px; border-bottom:1px solid #cbd5e1; text-align:right; color:#94a3b8;">-</td>
+      <td style="padding:10px; border-bottom:1px solid #cbd5e1; text-align:right; color:#10b981; font-weight:bold;">${formatTL(basicExpenses)}</td>
+      <td style="padding:10px; border-bottom:1px solid #cbd5e1; text-align:center;">
+        <span style="font-size:11px; color:#64748b;">Sabit Gider</span>
+      </td>
+    `;
+    tbody.appendChild(expensesTr);
+
+    // Denetleme Yetkilisi Satırı
+    const auditorTr = document.createElement("tr");
+    auditorTr.style.background = "#f1f5f9";
+    auditorTr.innerHTML = `
+      <td style="padding:10px; border-bottom:1px solid #cbd5e1; font-weight:bold; color:#475569;">Denetleme Yetkilisi</td>
+      <td style="padding:10px; border-bottom:1px solid #cbd5e1; color:#475569;">%1 Havuzdan</td>
+      <td style="padding:10px; border-bottom:1px solid #cbd5e1; text-align:right;">${formatTL(auditorExpense)}</td>
+      <td style="padding:10px; border-bottom:1px solid #cbd5e1; text-align:right; color:#94a3b8;">-</td>
+      <td style="padding:10px; border-bottom:1px solid #cbd5e1; text-align:right; color:#94a3b8;">-</td>
+      <td style="padding:10px; border-bottom:1px solid #cbd5e1; text-align:right; color:#10b981; font-weight:bold;">${formatTL(auditorExpense)}</td>
+      <td style="padding:10px; border-bottom:1px solid #cbd5e1; text-align:center;">
+        <span style="font-size:11px; color:#64748b;">Sabit Gider</span>
+      </td>
+    `;
+    tbody.appendChild(auditorTr);
+
+    // Update totals
+    totalGross += basicExpenses + auditorExpense;
+    totalNet += basicExpenses + auditorExpense;
+
+    if(state.personnel.length === 0){
+      // Prepend a "no personnel" row if none exist, but keep expenses at bottom
+      const noPers = document.createElement("tr");
+      noPers.innerHTML = `<td colspan="7" style="padding:14px; text-align:center; color:#64748b;">Kayıtlı personel bulunamadı. Sadece sabit giderler gösteriliyor.</td>`;
+      tbody.insertBefore(noPers, tbody.firstChild);
+    }
+
+    tfoot.innerHTML = `
+      <tr>
+        <td colspan="2" style="padding:10px; text-align:right;">GENEL TOPLAM:</td>
+        <td style="padding:10px; text-align:right;">${formatTL(totalGross)}</td>
+        <td style="padding:10px; text-align:right; color:#ef4444;">-${formatTL(totalTax1)}</td>
+        <td style="padding:10px; text-align:right; color:#ef4444;">-${formatTL(totalTax2)}</td>
+        <td style="padding:10px; text-align:right; color:#10b981;">${formatTL(totalNet)}</td>
+        <td></td>
+      </tr>
+    `;
+  }
+
+  if($("btnCalcSalaries")) $("btnCalcSalaries").onclick = renderSalaries;
+
+  // Yeni Ücret Belirleme Tablosu İçin Hesaplamalar
+  function updateNewPricingTable() {
+    // Girdileri al
+    const coefficient = Number($("yeni_salCoefficient").value) || 0;
+    const hourlyRate = Number($("yeni_salHourlyRate").value) || 0;
+    const dailyHours = Number($("yeni_salDailyHours").value) || 0;
+    const workDays = Number($("yeni_salWorkDays").value) || 0;
+    const studentCount = Number($("yeni_salStudentCount").value) || 0;
+
+    // 7- Okulun Belirlediği Aylık Ücret: Saat Ücreti X Günlük Saat X İş Günü
+    const monthlyFee = hourlyRate * dailyHours * workDays;
+    $("yeni_salMonthlyFee").value = formatTL(monthlyFee);
+
+    // 9- Aylık Aidat Toplamı: Aylık Ücret X Çocuk Sayısı
+    const totalPool = monthlyFee * studentCount;
+    $("yeni_salTotalPool").value = formatTL(totalPool);
+
+    // 10- En Yüksek Devlet Memuru Brüt Aylığı: Katsayı X 9500
+    const civilServant = coefficient * 9500;
+    $("yeni_salCivilServant").value = formatTL(civilServant);
+
+    // Eski arka plan hesaplamalarını besle ki sistem bozulmasın
+    if($("salTotalPool")) $("salTotalPool").value = totalPool;
+    if($("salCivilServant")) $("salCivilServant").value = civilServant;
+    if($("salHourlyRate")) $("salHourlyRate").value = hourlyRate;
+    if($("salDailyHours")) $("salDailyHours").value = dailyHours;
+    if($("salWorkDays")) $("salWorkDays").value = workDays;
+
+    // Ders Saati Tablosu'nu da güncelle (çünkü totalPool ve workDays değişmiş olabilir)
+    updateDersSaatiTablosu(totalPool, workDays);
+
+    // Maaşları ve Özet Tablosunu yenile
+    renderSalaries();
+  }
+
+  function updateDersSaatiTablosu(totalPool, workDays) {
+    if (!$("yeni_dersGroupCount")) return;
+
+    const groupCount = Number($("yeni_dersGroupCount").value) || 0;
+    const dailyTotal = Number($("yeni_dersDailyTotal").value) || 0;
+    const coordinator = Number($("yeni_dersCoordinator").value) || 0;
+
+    // 3- Ders Yapılan Gün Sayısı'nı güncelle
+    $("yeni_dersWorkDays").value = workDays;
+
+    // 4- Aylık Toplam Ders Sayısı: Kulüp Grup X Günlük Ders Saati X Ders Yapılan Gün
+    const monthlyTotalLessons = groupCount * dailyTotal * workDays;
+    $("yeni_dersMonthlyTotal").value = monthlyTotalLessons;
+
+    // 6- GENEL TOPLAM: Aylık Toplam Ders + KOORDİNATÖRLÜK
+    const grandTotal = monthlyTotalLessons + coordinator;
+    $("yeni_dersGrandTotal").value = grandTotal;
+
+    // 7- SAAT ÜCRETİ (Hesaplanan): Aylık Aidat Toplamı X 0.55 / Genel Toplam
+    let calculatedHourlyRate = 0;
+    if (grandTotal > 0) {
+      calculatedHourlyRate = (totalPool * 0.55) / grandTotal;
+    }
+    $("yeni_dersHourlyRateCalculated").value = formatTL(calculatedHourlyRate);
+
+    // Arkaplana hesaplanan saat ücretini aktaralım
+    window.calculatedDersSaatUcreti = calculatedHourlyRate;
+  }
+
+  // Yeni tablodaki inputlara event listener ekle
+  const yeniInputIds = [
+    "yeni_salCoefficient", "yeni_salIndicator", "yeni_salHourlyRate",
+    "yeni_salDailyHours", "yeni_salWorkDays", "yeni_salStudentCount",
+    "yeni_dersGroupCount", "yeni_dersDailyTotal", "yeni_dersCoordinator"
+  ];
+  yeniInputIds.forEach(id => {
+    if($(id)) {
+      $(id).addEventListener("input", updateNewPricingTable);
+    }
+  });
+
+  // Modal açıldığında da güncelleyelim (eski logic yerine)
+  const oldOpenSalaryModal = openSalaryModal;
+  window.openSalaryModal = function() {
+    oldOpenSalaryModal(); // bu salMonth gibi şeyleri ayarlar
+
+    // Öğrenci sayısını otomatik olarak tablodan çekip doldurabiliriz (opsiyonel)
+    if(!$("yeni_salStudentCount").value) {
+      $("yeni_salStudentCount").value = state.students.length;
+    }
+
+    updateNewPricingTable();
+  }
+
+  // Özel yüzde göster/gizle
+  if($("pRole")) {
+    $("pRole").onchange = () => {
+      $("pCustomPercentGroup").style.display = ($("pRole").value === "custom") ? "block" : "none";
+    };
+  }
+
+  window.openPersonnelEditModal = function(id = null){
+    editingPersonnelId = id;
+    const pName = $("pName");
+    const pRole = $("pRole");
+    const pCustomPercent = $("pCustomPercent");
+    const pCustomPercentGroup = $("pCustomPercentGroup");
+
+    if(id){
+      const p = state.personnel.find(x => x.id === id);
+      if(!p) return;
+      $("personnelModalTitle").textContent = "Personel Düzenle";
+      pName.value = p.name;
+      pRole.value = p.role;
+      pCustomPercent.value = p.percent || 0;
+      pCustomPercentGroup.style.display = (p.role === "custom") ? "block" : "none";
+    } else {
+      $("personnelModalTitle").textContent = "Yeni Personel Ekle";
+      pName.value = "";
+      pRole.value = "teacher_pool";
+      pCustomPercent.value = "";
+      pCustomPercentGroup.style.display = "none";
+    }
+    personnelEditModal.style.display = "flex";
+  };
+
+  if($("btnSavePersonnel")) {
+    $("btnSavePersonnel").onclick = () => {
+      const name = $("pName").value.trim();
+      const role = $("pRole").value;
+      const percent = Number($("pCustomPercent").value) || 0;
+
+      if(!name){ alert("Lütfen personel adını girin."); return; }
+
+      if(editingPersonnelId){
+        const p = state.personnel.find(x => x.id === editingPersonnelId);
+        if(p){
+          p.name = name;
+          p.role = role;
+          p.percent = percent;
+        }
+      } else {
+        state.personnel.push({
+          id: uid(),
+          name: name,
+          role: role,
+          percent: percent,
+          desc: ""
+        });
+      }
+
+      saveData();
+      personnelEditModal.style.display = "none";
+      renderSalaries();
+    };
+  }
+
+  window.deletePersonnel = function(id){
+    if(confirm("Bu personeli silmek istediğinize emin misiniz?")){
+      state.personnel = state.personnel.filter(p => p.id !== id);
+      saveData();
+      renderSalaries();
+    }
+  };
+
+  // Excel Export for Salaries
+  if($("btnExportSalariesExcel")) {
+    $("btnExportSalariesExcel").onclick = () => {
+      const totalPool = Number($("salTotalPool").value) || 0;
+      const baseSalary = Number($("salCivilServant").value) || 13184.77;
+      const month = $("salMonth").value || "Bilinmeyen Ay";
+
+      const teacherPoolCount = state.personnel.filter(p => p.role === "teacher_pool").length;
+      const teacherPoolTotal = totalPool * 0.55;
+      const teacherPerPerson = teacherPoolCount > 0 ? (teacherPoolTotal / teacherPoolCount) : 0;
+
+      const rows = state.personnel.map(p => {
+        let gross = 0;
+        let isCoordinator = p.role === "teacher_pool" && p.name.toLowerCase().includes("koordinatör");
+
+        if(p.role === "manager") gross = totalPool * 0.07;
+        else if(p.role === "deputy") gross = totalPool * 0.05;
+        else if(p.role === "accounting") gross = totalPool * 0.02;
+        else if(p.role === "cleaning") gross = totalPool * 0.04;
+        else if(p.role === "teacher_pool") {
+          let isCoordinator = p.name.toLowerCase().includes("koordinatör");
+          let isUsta = p.name.toLowerCase().includes("usta öğretici");
+          if (p.name.toLowerCase().includes("öğretmen") || isCoordinator || isUsta) {
+             const calculatedHourlyRateExcel = window.calculatedDersSaatUcreti || hourlyRate;
+             const dailyTotalLessons = Number($("yeni_dersDailyTotal").value) || 0;
+             const aylikDersSayisi = dailyTotalLessons * workDays;
+             gross = aylikDersSayisi * calculatedHourlyRateExcel;
+          } else {
+             gross = teacherPerPerson;
+          }
+        }
+        else if(p.role === "custom") gross = totalPool * (Number(p.percent) / 100);
+
+        let multiplier = 2.0; // default for unknown/accounting/cleaning/custom
+        if(p.role === "manager") multiplier = 2.75;
+        else if(p.role === "deputy") multiplier = 2.5;
+        else if(p.role === "teacher_pool") {
+          let isCoordinator = p.name.toLowerCase().includes("koordinatör");
+          multiplier = isCoordinator ? 2.75 : 4.0;
+        }
+        else if(p.role === "accounting" || p.role === "cleaning") multiplier = 2.0;
+
+        let maxGross = baseSalary * multiplier;
+        if(gross > maxGross) gross = maxGross;
+
+        const tax1 = gross * 0.15;
+        const tax2 = gross * 0.00759;
+
+        let exemption = 0;
+        if (p.role === "accounting") {
+          exemption = gross * 0.0935;
+        }
+
+        const net = gross - tax1 - tax2 + exemption;
+
+        return {
+          "Personel Adı": p.name,
+          "Görevi": getRoleDesc(p.role, p.percent),
+          "Brüt Ücret": Number(gross.toFixed(2)),
+          "Gelir Vergisi": Number(tax1.toFixed(2)),
+          "Damga Vergisi": Number(tax2.toFixed(2)),
+          "Muafiyet (İade)": Number(exemption.toFixed(2)),
+          "Net Ödenecek": Number(net.toFixed(2))
+        };
+      });
+
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Maaşlar");
+      XLSX.writeFile(wb, `Personel_Maaslari_${month}.xlsx`);
+    };
+  }
+
+
+// --- Sekmeler ---
+function setActiveTab(tab){
+  activeTab = tab;
+  const all = $("tabAll"), paid = $("tabPaid"), partial = $("tabPartial"), nopay = $("tabNoPay"), free = $("tabFree");
+  const btns = [all, paid, partial, nopay, free].filter(Boolean);
+  btns.forEach(b => b.classList.remove("active"));
+  if(tab==="paid" && paid) paid.classList.add("active");
+  else if(tab==="partial" && partial) partial.classList.add("active");
+  else if(tab==="nopay" && nopay) nopay.classList.add("active");
+  else if(tab==="free" && free) free.classList.add("active");
+  else if(all) all.classList.add("active");
+}
+if($("tabAll")) $("tabAll").onclick = () => { setActiveTab("all"); renderTable(); };
+if($("tabPaid")) $("tabPaid").onclick = () => { setActiveTab("paid"); renderTable(); };
+if($("tabPartial")) $("tabPartial").onclick = () => { setActiveTab("partial"); renderTable(); };
+if($("tabNoPay")) $("tabNoPay").onclick = () => { setActiveTab("nopay"); renderTable(); };
+if($("tabFree")) $("tabFree").onclick = () => { setActiveTab("free"); renderTable(); };
+
+// --- Paneli İndir/Yükle (HTML) ---
+function exportPanelHtml(){
+  try{
+    const clone = document.documentElement.cloneNode(true);
+    const embedded = clone.querySelector("#embeddedState");
+    if(embedded){
+      embedded.textContent = JSON.stringify(state);
+    }else{
+      const s = clone.ownerDocument.createElement("script");
+      s.id = "embeddedState";
+      s.type = "application/json";
+      s.textContent = JSON.stringify(state);
+      clone.querySelector("body").appendChild(s);
+    }
+    const updated = "<!doctype html>\n" + clone.outerHTML;
+    const blob = new Blob([updated], {type:"text/html;charset=utf-8"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "kulup_paneli_yedekli.html";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 1500);
+  }catch(e){
+    alert("HTML indirilemedi.");
+    console.error(e);
+  }
+}
+
+function importFromHtmlFile(){
+  const inp = document.createElement("input");
+  inp.type = "file";
+  inp.accept = ".html,text/html";
+  inp.onchange = (e) => {
+    const file = e.target.files?.[0];
+    if(!file) return;
+    const fr = new FileReader();
+    fr.onload = () => {
+      try{
+        const txt = String(fr.result || "");
+        const dom = new DOMParser().parseFromString(txt, "text/html");
+        const el = dom.querySelector("#embeddedState");
+        const raw = el ? (el.textContent || "").trim() : "";
+        if(!raw) throw new Error("Bu HTML içinde gömülü yedek bulunamadı.");
+        const parsed = JSON.parse(raw);
+        const newState = parsed?.data?.groups ? parsed.data : parsed;
+        if(!newState.groups || !Array.isArray(newState.groups)) throw new Error("Grup verisi yok.");
+        if(!newState.students || !Array.isArray(newState.students)) newState.students = [];
+        state = newState;
+        normalizeGroups();
+        saveData();
+        alert("HTML yedeği başarıyla yüklendi.");
+        activeGroupId = null;
+        setActiveTab("all");
+        renderDashboard();
+        renderTable();
+      }catch(err){
+        alert("HTML yedeği okunamadı veya bozuk.");
+        console.error(err);
+      }
+    };
+    fr.readAsText(file);
+  };
+  inp.click();
+}
+
+if($("btnExportHtml")) $("btnExportHtml").onclick = exportPanelHtml;
+if($("btnImportHtml")) $("btnImportHtml").onclick = importFromHtmlFile;
+
+  // search
+  function rerenderAll(){ renderTable(); renderDashboard(); }
+  $("btnClearSearch").onclick = () => { $("globalSearch").value=""; $("globalSearch").focus(); rerenderAll(); };
+  ["input","keyup","change"].forEach(evt => $("globalSearch").addEventListener(evt, rerenderAll));
+
+  // INIT
+  loadData();
+  saveData();
+  renderDashboard();
+  renderTable();
+})();
+</script>
+
+
+</div></body></html>
