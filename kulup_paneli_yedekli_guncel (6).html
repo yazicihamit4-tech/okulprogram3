@@ -667,6 +667,35 @@
         <tfoot id="personnelTfoot" style="font-weight: bold; background: #f1f5f9;"></tfoot>
       </table>
     </div>
+
+    <!-- BRÜT ÜCRET ÜST ORANLARI TABLOSU -->
+    <div style="background: white; padding: 24px; border-radius: 12px; border: 1px solid #e2e8f0; margin-top: 24px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+      <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 14px; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 20px;">📜</span> GÖREVLENDİRİLECEK KİŞİLERİN ALABİLECEĞİ BRÜT ÜCRET ÜST ORANLARI VE EN FAZLA BRÜT ÜCRET TUTARLARI (BRÜT TAVAN ÜCRETLERİ)
+      </h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+        <div style="background: rgba(79, 70, 229, 0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(79, 70, 229, 0.2);">
+          <div style="font-size: 11px; color: #475569; font-weight: 700; margin-bottom: 4px;">1- Müdür - Koordinatör Öğretmen %2,75</div>
+          <div style="font-size: 16px; font-weight: 900; color: #4f46e5;" id="limitManager">0,00 TL</div>
+        </div>
+        <div style="background: rgba(79, 70, 229, 0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(79, 70, 229, 0.2);">
+          <div style="font-size: 11px; color: #475569; font-weight: 700; margin-bottom: 4px;">2- Müdür Yardımcısı %2,5</div>
+          <div style="font-size: 16px; font-weight: 900; color: #4f46e5;" id="limitDeputy">0,00 TL</div>
+        </div>
+        <div style="background: rgba(79, 70, 229, 0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(79, 70, 229, 0.2);">
+          <div style="font-size: 11px; color: #475569; font-weight: 700; margin-bottom: 4px;">3- Kadrolu Öğretmen %4</div>
+          <div style="font-size: 16px; font-weight: 900; color: #4f46e5;" id="limitTeacher">0,00 TL</div>
+        </div>
+        <div style="background: rgba(79, 70, 229, 0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(79, 70, 229, 0.2);">
+          <div style="font-size: 11px; color: #475569; font-weight: 700; margin-bottom: 4px;">4- Usta Öğretici %4</div>
+          <div style="font-size: 16px; font-weight: 900; color: #4f46e5;" id="limitUsta">0,00 TL</div>
+        </div>
+        <div style="background: rgba(79, 70, 229, 0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(79, 70, 229, 0.2);">
+          <div style="font-size: 11px; color: #475569; font-weight: 700; margin-bottom: 4px;">5- Muhasebe-Temizlik %2</div>
+          <div style="font-size: 16px; font-weight: 900; color: #4f46e5;" id="limitAccountClean">0,00 TL</div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1599,6 +1628,13 @@
     const tavanUsta = civilServantAylik * 4.00;    // Usta Öğretici
     const tavanAccounting = civilServantAylik * 2.00; // Muhasebe
     const tavanCleaning = civilServantAylik * 2.00; // Temizlik
+
+    // Brüt Tavan Tablosu Güncellemesi
+    if ($("limitManager")) $("limitManager").textContent = formatTL(tavanManager);
+    if ($("limitDeputy")) $("limitDeputy").textContent = formatTL(tavanDeputy);
+    if ($("limitTeacher")) $("limitTeacher").textContent = formatTL(tavanTeacher);
+    if ($("limitUsta")) $("limitUsta").textContent = formatTL(tavanUsta);
+    if ($("limitAccountClean")) $("limitAccountClean").textContent = formatTL(tavanAccounting); // Muhasebe ve Temizlik aynı katsayı (%2)
 
     // Öğretmen havuzundakileri sayalım
     const teacherPoolCount = state.personnel.filter(p => p.role === "teacher_pool").length;
