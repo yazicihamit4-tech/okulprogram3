@@ -2127,81 +2127,208 @@
       const totalPool = Number($("salTotalPool").value) || 0;
       const baseSalary = Number($("salCivilServant").value) || 13184.77;
       const month = $("salMonth").value || "Bilinmeyen Ay";
+      const dailyHours = Number($("yeni_dersDailyTotal").value) || 2;
+      const workDays = Number($("salWorkDays").value) || 20;
 
       const teacherPoolCount = state.personnel.filter(p => p.role === "teacher_pool").length;
-      const teacherPoolTotal = totalPool * 0.55;
-      const teacherPerPerson = teacherPoolCount > 0 ? (teacherPoolTotal / teacherPoolCount) : 0;
+      const calculatedHourlyRateExcel = window.calculatedDersSaatUcreti || hourlyRate || 0;
 
-      const rows = state.personnel.map(p => {
-        let gross = 0;
-        let isCoordinator = p.role === "teacher_pool" && p.name.toLowerCase().includes("koordinatör");
-
-        if(p.role === "manager") gross = totalPool * 0.07;
-        else if(p.role === "deputy") gross = totalPool * 0.05;
-        else if(p.role === "accounting") gross = totalPool * 0.02;
-        else if(p.role === "cleaning") gross = totalPool * 0.04;
-        else if(p.role === "teacher_pool") {
-          let isCoordinator = p.name.toLowerCase().includes("koordinatör");
-          let isUsta = p.name.toLowerCase().includes("usta öğretici");
-          if (p.name.toLowerCase().includes("öğretmen") || isCoordinator || isUsta) {
-             const calculatedHourlyRateExcel = window.calculatedDersSaatUcreti || hourlyRate;
-             const dailyTotalLessons = Number($("yeni_dersDailyTotal").value) || 0;
-             const aylikDersSayisi = dailyTotalLessons * workDays;
-             gross = aylikDersSayisi * calculatedHourlyRateExcel;
-          } else {
-             gross = teacherPerPerson;
-          }
-        }
-        else if(p.role === "custom") gross = totalPool * (Number(p.percent) / 100);
-
-        let multiplier = 2.0; // default for unknown/accounting/cleaning/custom
-        if(p.role === "manager") multiplier = 2.75;
-        else if(p.role === "deputy") multiplier = 2.5;
-        else if(p.role === "teacher_pool") {
-          let isCoordinator = p.name.toLowerCase().includes("koordinatör");
-          multiplier = isCoordinator ? 2.75 : 4.0;
-        }
-        else if(p.role === "accounting" || p.role === "cleaning") multiplier = 2.0;
-
-        let maxGross = baseSalary * multiplier;
-        if(gross > maxGross) gross = maxGross;
-
-        let sgk = 0;
-        let isizlik = 0;
-        const isSpecificPerson = ["Kadir Şişman", "Şebnem Şişman", "Hülya Pişkin"].includes(p.name);
-        if (isSpecificPerson) {
-          gross = gross * (0.84241 / 0.69241);
-          sgk = gross * 0.14;
-          isizlik = gross * 0.01;
-        }
-
-        const tax1 = gross * 0.15;
-        const tax2 = gross * 0.00759;
-
-        let exemption = 0;
-        if (p.role === "accounting") {
-          exemption = gross * 0.0935;
-        }
-
-        const net = gross - tax1 - tax2 - sgk - isizlik + exemption;
-
-        return {
-          "Personel Adı": p.name,
-          "Görevi": getRoleDesc(p.role, p.percent),
-          "Brüt Ücret": Number(gross.toFixed(2)),
-          "SGK İşçi (%14)": Number(sgk.toFixed(2)),
-          "İşsizlik İşçi (%1)": Number(isizlik.toFixed(2)),
-          "Gelir Vergisi": Number(tax1.toFixed(2)),
-          "Damga Vergisi": Number(tax2.toFixed(2)),
-          "Muafiyet (İade)": Number(exemption.toFixed(2)),
-          "Net Ödenecek": Number(net.toFixed(2))
-        };
+      // Calculate Active Students count
+      let activeStudents = 0;
+      state.students.forEach(s => {
+         // students have firstGroupId and lastGroupId based on the program logic
+         if (s.firstGroupId || s.lastGroupId) activeStudents++;
       });
 
-      const ws = XLSX.utils.json_to_sheet(rows);
+      // Bütçe Kalemleri
+      const temelGider = totalPool * 0.26;
+      const denetleme = totalPool * 0.01;
+      const mudur = totalPool * 0.07;
+      const mudurYrd = totalPool * 0.05;
+      const ogretmen = totalPool * 0.55;
+      const muhasebe = totalPool * 0.02;
+      const temizlik = totalPool * 0.04;
+
+      // Aylık Ders Sayısı
+      const aylikDersSayisi = dailyHours * workDays;
+
+      // Tavan Ücretler
+      const tavanManager = baseSalary * 2.75;
+      const tavanDeputy = baseSalary * 2.50;
+      const tavanTeacher = baseSalary * 4.00;
+      const tavanUsta = baseSalary * 4.00;
+      const tavanAccClean = baseSalary * 2.00;
+
+      // Öğretmen Grubu Sayısı (active groups with students)
+      let activeGroups = 0;
+      state.groups.forEach(g => {
+         const list = getGroupStudents(g.id);
+         if(list.length > 0) activeGroups++;
+      });
+      // Fallback
+      if(activeGroups === 0) activeGroups = 1;
+
+      // Koordinatör Sayısı
+      let coordinatorCount = 0;
+      state.personnel.forEach(p => {
+         if(p.name.toLowerCase().includes("koordinatör")) coordinatorCount++;
+      });
+
+      // Constructing Array of Arrays (AoA) for Excel
+      // Empty string '' for empty cells
+      const aoa = [
+        // Row 1: Title
+        ["ÇOCUK KULÜPLERİ ÖRNEK BÜTÇE TABLOSU", "", "", "", "", "", "", "", "", "", ""],
+        // Row 2: Subtitle
+        ["ÜCRET BELİRLEME TABLOSU", "", "", "", "", "", "", "", "", "", ""],
+        // Row 3: Table Headers
+        [
+          "A\nAylık İçin\nBelirlenen\nKatsayı",
+          "B\nGündüz\nÖğretimi\nGöstergesi",
+          "Kulüpte\nYemek\nHizmeti\nVeriliyor\nMu?",
+          "E\n\nOkulun Belirlediği Saat Ücreti", "",
+          "F\nGünlük\nKulüp\nEtkinlik\nSaati",
+          "G\nAylık İş\nGünü\nSayısı",
+          "H\nOkulun\nBelirlediği\nAylık Ücret\n(E*F*G)",
+          "I\nKulübe\nKatılan\nÇocuk\nSayısı",
+          "J\nAylık Aidat\nToplamı\n(H*I)",
+          "K\nEn\nYüksek Devlet\nMemuru Brüt\nAylığı"
+        ],
+        // Row 4: Table 1 Data
+        [
+          (baseSalary / 9500).toFixed(6), // Katsayı approx
+          140, // Gündüz Öğretimi
+          "EVET", // Yemek
+          calculatedHourlyRateExcel, "", // Merge E
+          dailyHours,
+          workDays,
+          (calculatedHourlyRateExcel * dailyHours * workDays), // E*F*G
+          activeStudents, // I
+          totalPool, // J
+          baseSalary // K
+        ],
+        // Row 5: Empty
+        ["", "", "", "", "", "", "", "", "", "", ""],
+        // Row 6: Title for tables below
+        ["GİDER KALEMLERİ ÖZET TABLOSU", "", "", "", "", "DERS SAATİ TOPLAMI BELİRLEME TABLOSU", "", "", "", totalPool, "Genel Toplam"],
+        // Row 7: Headers below
+        [
+          "GİDER KALEMLERİ", "", "",
+          "ORAN",
+          "BRÜT MİKTAR",
+          "Kulüp\nGrup\n(sınıf)\nSayısı",
+          "Koordinatör",
+          "Günlük\nDers Saati\nToplamı",
+          "Ders\nYapılan\nGün\nSayısı",
+          "Aylık\nToplam\nDers Sayısı",
+          "Genel Toplam"
+        ],
+        // Row 8
+        [
+          "Temel Giderler (Materyal Alımı, Beslenme, SGK Prim ve Okulun Diğer Giderleri)", "", "",
+          "26%",
+          temelGider,
+          activeGroups,
+          coordinatorCount,
+          dailyHours,
+          workDays,
+          aylikDersSayisi,
+          "Sayfa 2\n1"
+        ],
+        // Row 9
+        ["Denetleme Yetkilisi", "", "", "1%", denetleme, "", "", "", "", "", ""],
+        // Row 10
+        ["Kulüp Yönetim Kurulu Başkanı - Müdür", "", "", "7%", mudur, "", "", "", "", "", ""],
+        // Row 11
+        ["Kulüp Yönetim Kurulu Üyesi - Müdür Yardımcısı", "", "", "5%", mudurYrd, "Saati ücreti", "", calculatedHourlyRateExcel, "", "", ""],
+        // Row 12
+        ["Öğretmen, Usta Öğretici ve Koordinatör Öğretmen", "", "", "55%", ogretmen, "", "", "", "", "", ""],
+        // Row 13
+        ["Yazışma-Muhasebe İşlerini Yürüten Personel", "", "", "2%", muhasebe, "YÖNERGEYE GÖRE GÖREVLENDİRİLECEK KİŞİLERİN ALABİLECEĞİ BRÜT ÜCRET ÜST ORANLARI VE ÖDENECEK EN FAZLA BRÜT ÜCRET TUTARLARI TABLOSU", "", "", "", "", ""],
+        // Row 14
+        ["Temizlik Bakım ve Beslenme İşlerini Yürüten Personel", "", "", "4%", temizlik, "", "Koordinatör\nÖğretmen", "Müdür\nYardımcısı", "Kadrolu\nÖğretmen", "Usta\nÖğretici", "Muhasebe-\nTemizlik"],
+        // Row 15
+        ["TOPLAM", "", "", "100%", totalPool, "Oran", "2,75", "2,5", "4", "4", "2"],
+        // Row 16
+        ["", "", "", "", "", "Brüt Tavan\nÜcreti", tavanManager, tavanDeputy, tavanTeacher, tavanUsta, tavanAccClean]
+      ];
+
+      const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+      // Merges
+      ws['!merges'] = [
+        // Row 1: Title (A1:K1) -> r:0, c:0 to r:0, c:10
+        {s:{r:0,c:0},e:{r:0,c:10}},
+        // Row 2: Subtitle (A2:K2) -> r:1, c:0 to r:1, c:10
+        {s:{r:1,c:0},e:{r:1,c:10}},
+        // Row 3: E header merge (D3:E3) -> E is col 3, 4 based on image layout. Wait, image columns A,B,C, E. Where is D?
+        // Let's merge D3:E3 (index 3 to 4)
+        {s:{r:2,c:3},e:{r:2,c:4}},
+        // Row 4: E value merge
+        {s:{r:3,c:3},e:{r:3,c:4}},
+        // Row 6: GİDER KALEMLERİ ÖZET TABLOSU (A6:E6) -> r:5, c:0 to c:4
+        {s:{r:5,c:0},e:{r:5,c:4}},
+        // Row 6: DERS SAATİ TOPLAMI (F6:I6) -> r:5, c:5 to c:8
+        {s:{r:5,c:5},e:{r:5,c:8}},
+        // Row 7: GİDER KALEMLERİ header (A7:C7) -> r:6, c:0 to c:2
+        {s:{r:6,c:0},e:{r:6,c:2}},
+        // Rows 8-15: First column merge (A:C)
+        {s:{r:7,c:0},e:{r:7,c:2}},
+        {s:{r:8,c:0},e:{r:8,c:2}},
+        {s:{r:9,c:0},e:{r:9,c:2}},
+        {s:{r:10,c:0},e:{r:10,c:2}},
+        {s:{r:11,c:0},e:{r:11,c:2}},
+        {s:{r:12,c:0},e:{r:12,c:2}},
+        {s:{r:13,c:0},e:{r:13,c:2}},
+        {s:{r:14,c:0},e:{r:14,c:2}},
+
+        // Row 11: Saati ucreti (F11:G11) -> r:10, c:5 to c:6
+        {s:{r:10,c:5},e:{r:10,c:6}},
+        // Row 11: Saati ucreti value (H11:J11) -> r:10, c:7 to c:9
+        {s:{r:10,c:7},e:{r:10,c:9}},
+
+        // Row 13: YONERGE title (F13:K13) -> r:12, c:5 to c:10
+        {s:{r:12,c:5},e:{r:12,c:10}},
+
+        // Row 14: Oran header merge with Row 15 Oran? In image "Oran" is Row 15, F.
+      ];
+
+      // Formatting / Styling (XLSX doesn't export heavy styles natively without Pro, but we can try basic formatting)
+      const range = XLSX.utils.decode_range(ws['!ref']);
+      for(let R = range.s.r; R <= range.e.r; ++R) {
+        for(let C = range.s.c; C <= range.e.c; ++C) {
+          let cell_address = {c:C, r:R};
+          let cell_ref = XLSX.utils.encode_cell(cell_address);
+          if(!ws[cell_ref]) continue;
+
+          if(!ws[cell_ref].s) ws[cell_ref].s = {};
+          ws[cell_ref].s.alignment = { wrapText: true, vertical: "center", horizontal: "center" };
+
+          // Apply some bolding
+          if(R < 3 || R === 5 || R === 6 || R === 12 || C === 3 || C === 5 || R === 14) {
+             ws[cell_ref].s.font = { bold: true };
+          }
+        }
+      }
+
+      // Column Widths
+      ws['!cols'] = [
+        {wpx: 120}, // A
+        {wpx: 80},  // B
+        {wpx: 80},  // C
+        {wpx: 80},  // D
+        {wpx: 80},  // E
+        {wpx: 80},  // F
+        {wpx: 80},  // G
+        {wpx: 80},  // H
+        {wpx: 80},  // I
+        {wpx: 80},  // J
+        {wpx: 120}  // K
+      ];
+
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Maaşlar");
-      XLSX.writeFile(wb, `Personel_Maaslari_${month}.xlsx`);
+      XLSX.utils.book_append_sheet(wb, ws, "Bütçe Tablosu");
+      XLSX.writeFile(wb, `Cocuk_Kulupleri_Butce_Tablosu_${month}.xlsx`);
     };
   }
 
