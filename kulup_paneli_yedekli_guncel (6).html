@@ -456,11 +456,11 @@
           <div id="activeGroupPill" style="margin-top:6px; display:none;"></div>
         </div>
         <div class="tabs">
-          <button class="tab-btn active" id="tabAll">Tümü</button>
-          <button class="tab-btn" id="tabPaid">Ödeme Yapan</button>
-          <button class="tab-btn" id="tabPartial">Kısmi Ödeme</button>
-          <button class="tab-btn" id="tabNoPay">Ödeme Yapmayan</button>
-          <button class="tab-btn" id="tabFree">Ücretsiz</button>
+                    <button class="tab-btn active" id="tabAll">Tümü <span id="cntAll" style="opacity:0.7; font-size:11px; margin-left:4px;"></span></button>
+          <button class="tab-btn" id="tabPaid">Ödeme Yapan <span id="cntPaid" style="opacity:0.7; font-size:11px; margin-left:4px;"></span></button>
+          <button class="tab-btn" id="tabPartial">Kısmi Ödeme <span id="cntPartial" style="opacity:0.7; font-size:11px; margin-left:4px;"></span></button>
+          <button class="tab-btn" id="tabNoPay">Ödeme Yapmayan <span id="cntNoPay" style="opacity:0.7; font-size:11px; margin-left:4px;"></span></button>
+          <button class="tab-btn" id="tabFree">Ücretsiz <span id="cntFree" style="opacity:0.7; font-size:11px; margin-left:4px;"></span></button>
         <div class="badge badge-gray" id="recordCount">1 kayıt</div>
         </div>
       </div>
@@ -1153,10 +1153,32 @@
     // Grup filtresi (dashboard kartından)
     const groupName = activeGroupId ? (findGroup(activeGroupId)?.name || "Grup") : "";
 
-    let list = state.students.slice();
+    let baseList = state.students.slice();
     if(activeGroupId){
-      list = list.filter(s => s.firstGroupId === activeGroupId || s.lastGroupId === activeGroupId);
+      baseList = baseList.filter(s => s.firstGroupId === activeGroupId || s.lastGroupId === activeGroupId);
     }
+    // Arama filtresini baştan uygula ki sayılar arama sonucuna göre güncellensin
+    baseList = baseList.filter(s => studentMatchesQuery(s, q));
+
+    // Tab sayılarını hesapla
+    let cAll=0, cPaid=0, cPartial=0, cNoPay=0, cFree=0;
+    baseList.forEach(s => {
+      cAll++;
+      const fee = getStudentFee(s);
+      const paid = Number(s.paidTL || 0);
+      if(fee > 0 && paid >= fee) cPaid++;
+      else if(fee > 0 && paid > 0 && paid < fee) cPartial++;
+      else if(fee > 0 && paid <= 0) cNoPay++;
+      else if(fee === 0) cFree++;
+    });
+
+    if($("cntAll")) $("cntAll").textContent = `(${cAll})`;
+    if($("cntPaid")) $("cntPaid").textContent = `(${cPaid})`;
+    if($("cntPartial")) $("cntPartial").textContent = `(${cPartial})`;
+    if($("cntNoPay")) $("cntNoPay").textContent = `(${cNoPay})`;
+    if($("cntFree")) $("cntFree").textContent = `(${cFree})`;
+
+    let list = baseList;
 
     // Sekme filtresi
     list = list.filter(s => {
@@ -1169,9 +1191,6 @@
       if(activeTab === "free")    return fee === 0;
       return true; // all
     });
-
-    // Arama filtresi
-    list = list.filter(s => studentMatchesQuery(s, q));
     list.sort((a,b) => a.grade - b.grade || a.branch.localeCompare(b.branch) || a.name.localeCompare(b.name,'tr'));
 
     let grandFee = 0, grandPaid = 0;
