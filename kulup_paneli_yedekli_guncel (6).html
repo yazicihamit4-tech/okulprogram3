@@ -1791,7 +1791,7 @@
 
     state.personnel.filter(p => p.role === "teacher_pool").forEach(p => {
        const dh = p.dailyHours || globalDailyLessons;
-       // We're calculating pool share by individual monthly hours (dh * workDays)
+       // Calculate pool share by individual monthly hours (dh * workDays)
        totalTeacherHours += dh * workDays;
     });
 
@@ -1859,6 +1859,12 @@
       const isSpecificPerson = ["Kadir Şişman", "Şebnem Şişman", "Hülya Pişkin"].includes(p.name);
 
       if (isSpecificPerson) {
+        // Kullanıcı brütün artırılmasını istedi, ancak aynı zamanda tam vergi muafiyeti de var.
+        // Vergi muafiyeti vergileri sıfırladığı için, net maaşın ana paya eşit olması için sadece SGK ve İşsizlik kesintilerini telafi edecek kadar brütü artırıyoruz.
+        // Net = Brüt - SGK(%14) - İşsizlik(%1) = Brüt * 0.85
+        // Hedef Net = Eski Brüt. Bu yüzden Yeni Brüt = Eski Brüt / 0.85
+        gross = gross / 0.85;
+
         // SGK İşçi Payı %14
         sgk = gross * 0.14;
         // İşsizlik Sigortası İşçi Payı %1
@@ -1872,7 +1878,7 @@
       const fullExemptionNames = ["Hülya Pişkin", "Kadir Şişman", "Şebnem Şişman", "Züleyha Danyıldız"];
 
       if (fullExemptionNames.includes(p.name)) {
-        exemption = tax1 + tax2; // Tam muafiyet
+        exemption = tax1 + tax2; // Tam muafiyet (Sadece Vergi İadesi)
       } else if (p.name === "Hamit Yazıcı") {
         exemption = (tax1 + tax2) / 2; // Yarı muafiyet
       } else if (p.role === "accounting") {
