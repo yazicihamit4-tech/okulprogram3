@@ -1813,6 +1813,7 @@
     state.personnel.forEach(p => {
       let gross = 0;
       let maxGross = Infinity;
+      let displayHours = "-";
 
       if(p.role === "manager") {
         gross = totalPool * 0.07;
@@ -1831,8 +1832,8 @@
         maxGross = tavanCleaning;
       }
                   else if(p.role === "teacher_pool") {
-        let isCoordinator = p.name.toLowerCase().includes("koordinatör") || p.name.toLowerCase().includes("sevilay ulucan");
-        let isUsta = p.name.toLowerCase().includes("usta öğretici");
+        let isCoordinator = (p.name || "").toLowerCase().includes("koordinatör") || (p.name || "").toLowerCase().includes("sevilay ulucan");
+        let isUsta = (p.name || "").toLowerCase().includes("usta öğretici");
 
         const myDailyHours = p.dailyHours || globalDailyLessons;
         displayHours = `${myDailyHours} sa/gün`;
@@ -2103,6 +2104,7 @@
       const name = $("pName").value.trim();
       const role = $("pRole").value;
       const percent = Number($("pCustomPercent").value) || 0;
+      const dailyHours = Number($("pDailyHours").value) || null; // Capture Daily Hours
 
       if(!name){ alert("Lütfen personel adını girin."); return; }
 
@@ -2112,6 +2114,7 @@
           p.name = name;
           p.role = role;
           p.percent = percent;
+          p.dailyHours = dailyHours; // Save Edit
         }
       } else {
         state.personnel.push({
@@ -2119,6 +2122,7 @@
           name: name,
           role: role,
           percent: percent,
+          dailyHours: dailyHours, // Save Add
           desc: ""
         });
       }
@@ -2187,7 +2191,7 @@
       // Koordinatör Sayısı
       let coordinatorCount = 0;
       state.personnel.forEach(p => {
-         if(p.name.toLowerCase().includes("koordinatör")) coordinatorCount++;
+         if((p.name || "").toLowerCase().includes("koordinatör")) coordinatorCount++;
       });
 
       // Constructing Array of Arrays (AoA) for Excel
