@@ -757,6 +757,7 @@
           <tr>
             <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0;">Personel Adı</th>
             <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0;">Görevi/Yüzdesi</th>
+            <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:center;">Günlük Saat</th>
             <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:right;">Brüt (TL)</th>
             <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:right;">SGK (%14)</th>
             <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:right;">İşsizlik (%1)</th>
@@ -829,6 +830,10 @@
     <div class="form-group" id="pCustomPercentGroup" style="display:none;">
       <label>Özel Yüzde (%)</label>
       <input type="number" id="pCustomPercent" placeholder="Örn: 10">
+    </div>
+    <div class="form-group" id="pDailyHoursGroup">
+      <label>Günlük Saat (Sadece Havuz İçin)</label>
+      <input type="number" id="pDailyHours" placeholder="Örn: 2 veya 4 (Boşsa genel ayar kullanılır)">
     </div>
 
     <div class="modal-footer">
@@ -1780,12 +1785,20 @@
     if ($("limitUsta")) $("limitUsta").textContent = formatTL(tavanUsta);
     if ($("limitAccountClean")) $("limitAccountClean").textContent = formatTL(tavanAccounting); // Muhasebe ve Temizlik aynı katsayı (%2)
 
-    // Öğretmen havuzundakileri sayalım
-    const teacherPoolCount = state.personnel.filter(p => p.role === "teacher_pool").length;
-    const teacherPoolTotal = totalPool * 0.55;
-    const teacherPerPerson = teacherPoolCount > 0 ? (teacherPoolTotal / teacherPoolCount) : 0;
+    // Öğretmen havuzundakileri saat bazlı ağırlıklandıralım
+    const globalDailyLessons = Number($("yeni_dersDailyTotal").value) || 0;
+    let totalTeacherHours = 0;
 
-    // Ders saati tablosunda hesaplanan saat ücreti
+    state.personnel.filter(p => p.role === "teacher_pool").forEach(p => {
+       const dh = p.dailyHours || globalDailyLessons;
+       // We're calculating pool share by individual monthly hours (dh * workDays)
+       totalTeacherHours += dh * workDays;
+    });
+
+    const teacherPoolTotal = totalPool * 0.55;
+    const teacherHourlyRate = totalTeacherHours > 0 ? (teacherPoolTotal / totalTeacherHours) : 0;
+
+    // Ders saati tablosunda hesaplanan saat ücreti (Görsel için)
     const calculatedHourlyRate = window.calculatedDersSaatUcreti || hourlyRate;
 
     // Hesaplamalar
@@ -1817,23 +1830,17 @@
         gross = totalPool * 0.04;
         maxGross = tavanCleaning;
       }
-      else if(p.role === "teacher_pool") {
-        let isCoordinator = p.name.toLowerCase().includes("koordinatör");
+                  else if(p.role === "teacher_pool") {
+        let isCoordinator = p.name.toLowerCase().includes("koordinatör") || p.name.toLowerCase().includes("sevilay ulucan");
         let isUsta = p.name.toLowerCase().includes("usta öğretici");
 
-        // Yeni Kural: Öğretmen, Koordinatör ve Usta Öğreticiler için maaş =
-        // Ders Yapılan Gün Sayısı * Günlük Ders Saati Toplamı * Hesaplanan Saat Ücreti
-        // (Eğer isimlerinde bunlar geçiyorsa yeni formülü uyguluyoruz, yoksa eski havuza göre hesaplar)
-        if (p.name.toLowerCase().includes("öğretmen") || isCoordinator || isUsta) {
-           const dailyTotalLessons = Number($("yeni_dersDailyTotal").value) || 0;
-           // p.customLessons diyerek kişi bazlı bir ders saati de olabilirdi, ama genel "Günlük Ders Saati" ile çarpıyoruz
-           // Öğretmenlerin aylık girdiği toplam ders saati: Günlük Ders Saati * Aylık İş Günü
-           const aylikDersSayisi = dailyTotalLessons * workDays;
-           gross = aylikDersSayisi * calculatedHourlyRate;
-        } else {
-           // Havuzu eşit bölme varsayımı (isim belirtilmemişse)
-           gross = teacherPerPerson;
-        }
+        const myDailyHours = p.dailyHours || globalDailyLessons;
+        displayHours = `${myDailyHours} sa/gün`;
+        const myMonthlyHours = myDailyHours * workDays;
+
+        // Yeni havuz dağıtımı: Ortalama Saat Ücreti ile çarp (Havuz / Toplam Havuz Saati)
+        gross = myMonthlyHours * teacherHourlyRate;
+
         maxGross = isCoordinator ? tavanManager : (isUsta ? tavanUsta : tavanTeacher);
       }
       else if(p.role === "custom") {
@@ -1851,16 +1858,9 @@
       const isSpecificPerson = ["Kadir Şişman", "Şebnem Şişman", "Hülya Pişkin"].includes(p.name);
 
       if (isSpecificPerson) {
-        // Kullanıcı bu 3 kişi için ellerine geçecek netin düşmemesini istedi.
-        // Kesilecek tutar kadar brütlerini artırmamız gerekiyor.
-        // Normal net: Brüt - (Brüt*0.15) - (Brüt*0.00759) = Brüt * 0.84241
-        // Kesintili net: YeniBrüt - (YeniBrüt*0.14) - (YeniBrüt*0.01) - (YeniBrüt*0.15) - (YeniBrüt*0.00759) = YeniBrüt * 0.69241
-        // Netin değişmemesi için: YeniBrüt * 0.69241 = Brüt * 0.84241 => YeniBrüt = Brüt * (0.84241 / 0.69241)
-        gross = gross * (0.84241 / 0.69241);
-
-        // Yeni brüt üzerinden SGK İşçi Payı %14
+        // SGK İşçi Payı %14
         sgk = gross * 0.14;
-        // Yeni brüt üzerinden İşsizlik Sigortası İşçi Payı %1
+        // İşsizlik Sigortası İşçi Payı %1
         isizlik = gross * 0.01;
       }
 
@@ -1893,6 +1893,7 @@
       tr.innerHTML = `
         <td style="padding:10px; border-bottom:1px solid #e2e8f0; font-weight:bold;">${escapeHtml(p.name)}</td>
         <td style="padding:10px; border-bottom:1px solid #e2e8f0;">${getRoleDesc(p.role, p.percent)}</td>
+        <td style="padding:10px; border-bottom:1px solid #e2e8f0; text-align:center; font-size:11px; color:#64748b;">${displayHours}</td>
         <td style="padding:10px; border-bottom:1px solid #e2e8f0; text-align:right;">${formatTL(gross)}</td>
         <td style="padding:10px; border-bottom:1px solid #e2e8f0; text-align:right; color:#ef4444;">-${formatTL(sgk)}</td>
         <td style="padding:10px; border-bottom:1px solid #e2e8f0; text-align:right; color:#ef4444;">-${formatTL(isizlik)}</td>
@@ -2068,26 +2069,30 @@
     };
   }
 
-  window.openPersonnelEditModal = function(id = null){
+    window.openPersonnelEditModal = function(id = null){
     editingPersonnelId = id;
     const pName = $("pName");
     const pRole = $("pRole");
     const pCustomPercent = $("pCustomPercent");
     const pCustomPercentGroup = $("pCustomPercentGroup");
+    const pDailyHours = $("pDailyHours"); // Ensure daily hours field is picked up
 
     if(id){
-      const p = state.personnel.find(x => x.id === id);
-      if(!p) return;
       $("personnelModalTitle").textContent = "Personel Düzenle";
-      pName.value = p.name;
-      pRole.value = p.role;
-      pCustomPercent.value = p.percent || 0;
-      pCustomPercentGroup.style.display = (p.role === "custom") ? "block" : "none";
+      const p = state.personnel.find(x => x.id === id);
+      if(p){
+        pName.value = p.name || "";
+        pRole.value = p.role || "teacher_pool";
+        pCustomPercent.value = p.percent || "";
+        if (pDailyHours) pDailyHours.value = p.dailyHours || ""; // Populate daily hours
+        pCustomPercentGroup.style.display = (p.role === "custom") ? "block" : "none";
+      }
     } else {
-      $("personnelModalTitle").textContent = "Yeni Personel Ekle";
+      $("personnelModalTitle").textContent = "Personel Ekle";
       pName.value = "";
       pRole.value = "teacher_pool";
       pCustomPercent.value = "";
+      if (pDailyHours) pDailyHours.value = ""; // Clear daily hours
       pCustomPercentGroup.style.display = "none";
     }
     personnelEditModal.style.display = "flex";
