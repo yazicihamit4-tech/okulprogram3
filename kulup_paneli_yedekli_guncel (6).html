@@ -787,7 +787,7 @@
           <div style="font-size: 16px; font-weight: 900; color: #4f46e5;" id="limitDeputy">0,00 TL</div>
         </div>
         <div style="background: rgba(79, 70, 229, 0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(79, 70, 229, 0.2);">
-          <div style="font-size: 11px; color: #475569; font-weight: 700; margin-bottom: 4px;">3- Kadrolu Öğretmen %4</div>
+          <div style="font-size: 11px; color: #475569; font-weight: 700; margin-bottom: 4px;">3- Kadrolu Öğretmen %3</div>
           <div style="font-size: 16px; font-weight: 900; color: #4f46e5;" id="limitTeacher">0,00 TL</div>
         </div>
         <div style="background: rgba(79, 70, 229, 0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(79, 70, 229, 0.2);">
@@ -1768,7 +1768,7 @@
     // Brüt Tavan Hesaplamaları (Devlet Memuru Aylığı * Çarpan)
     const tavanManager = civilServantAylik * 2.75; // Müdür - Koordinatör Öğretmen
     const tavanDeputy = civilServantAylik * 2.50;  // Müdür Yardımcısı
-    const tavanTeacher = civilServantAylik * 4.00; // Kadrolu Öğretmen
+    const tavanTeacher = civilServantAylik * 3.00; // Kadrolu Öğretmen
     const tavanUsta = civilServantAylik * 4.00;    // Usta Öğretici
     const tavanAccounting = civilServantAylik * 2.00; // Muhasebe
     const tavanCleaning = civilServantAylik * 2.00; // Temizlik
@@ -2142,7 +2142,7 @@
       const workDays = Number($("salWorkDays").value) || 20;
 
       const teacherPoolCount = state.personnel.filter(p => p.role === "teacher_pool").length;
-      const calculatedHourlyRateExcel = window.calculatedDersSaatUcreti || hourlyRate || 0;
+      const calculatedHourlyRateExcel = window.calculatedDersSaatUcreti || Number($("yeni_dersHourlyRateCalculated").value.replace(" TL","").replace(".","").replace(",",".")) || 0;
 
       // Calculate Active Students count
       let activeStudents = 0;
@@ -2160,13 +2160,10 @@
       const muhasebe = totalPool * 0.02;
       const temizlik = totalPool * 0.04;
 
-      // Aylık Ders Sayısı
-      const aylikDersSayisi = dailyHours * workDays;
-
       // Tavan Ücretler
       const tavanManager = baseSalary * 2.75;
       const tavanDeputy = baseSalary * 2.50;
-      const tavanTeacher = baseSalary * 4.00;
+      const tavanTeacher = baseSalary * 3.00;
       const tavanUsta = baseSalary * 4.00;
       const tavanAccClean = baseSalary * 2.00;
 
@@ -2178,6 +2175,9 @@
       });
       // Fallback
       if(activeGroups === 0) activeGroups = 1;
+
+      // Aylık Ders Sayısı (Grup Sayısı * Günlük Ders * Gün Sayısı)
+      const aylikDersSayisi = activeGroups * dailyHours * workDays;
 
       // Koordinatör Sayısı
       let coordinatorCount = 0;
@@ -2259,7 +2259,7 @@
         // Row 14
         ["Temizlik Bakım ve Beslenme İşlerini Yürüten Personel", "", "", "4%", temizlik, "", "Koordinatör\nÖğretmen", "Müdür\nYardımcısı", "Kadrolu\nÖğretmen", "Usta\nÖğretici", "Muhasebe-\nTemizlik"],
         // Row 15
-        ["TOPLAM", "", "", "100%", totalPool, "Oran", "2,75", "2,5", "4", "4", "2"],
+        ["TOPLAM", "", "", "100%", totalPool, "Oran", "2,75", "2,5", "3", "4", "2"],
         // Row 16
         ["", "", "", "", "", "Brüt Tavan\nÜcreti", tavanManager, tavanDeputy, tavanTeacher, tavanUsta, tavanAccClean]
       ];
