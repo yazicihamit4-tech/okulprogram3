@@ -757,7 +757,7 @@
           <tr>
             <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0;">Personel Adı</th>
             <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0;">Görevi/Yüzdesi</th>
-            <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:center;">Günlük Saat</th>
+            <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:center;">Aylık Saat</th>
             <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:right;">Brüt (TL)</th>
             <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:right;">SGK (%14)</th>
             <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:right;">İşsizlik (%1)</th>
@@ -832,8 +832,8 @@
       <input type="number" id="pCustomPercent" placeholder="Örn: 10">
     </div>
     <div class="form-group" id="pDailyHoursGroup">
-      <label>Günlük Saat (Sadece Havuz İçin)</label>
-      <input type="number" id="pDailyHours" placeholder="Örn: 2 veya 4 (Boşsa genel ayar kullanılır)">
+      <label>Aylık Toplam Saat (Sadece Havuz İçin)</label>
+      <input type="number" id="pDailyHours" placeholder="Örn: 30, 40 (Boşsa genel ayara göre hesaplanır)">
     </div>
 
     <div class="modal-footer">
@@ -1809,9 +1809,10 @@
     let totalTeacherHours = 0;
 
     state.personnel.filter(p => p.role === "teacher_pool").forEach(p => {
-       const dh = p.dailyHours || globalDailyLessons;
-       // Calculate pool share by individual monthly hours (dh * workDays)
-       totalTeacherHours += dh * workDays;
+       // p.dailyHours represents Monthly Processed Hours now.
+       // If empty, calculate default (globalDailyLessons * workDays)
+       const myMonthlyHours = p.dailyHours || (globalDailyLessons * workDays);
+       totalTeacherHours += myMonthlyHours;
     });
 
     const teacherPoolTotal = totalPool * 0.55;
@@ -1854,9 +1855,8 @@
         let isCoordinator = (p.name || "").toLowerCase().includes("koordinatör") || (p.name || "").toLowerCase().includes("sevilay ulucan");
         let isUsta = (p.name || "").toLowerCase().includes("usta öğretici");
 
-        const myDailyHours = p.dailyHours || globalDailyLessons;
-        displayHours = `${myDailyHours} sa/gün`;
-        const myMonthlyHours = myDailyHours * workDays;
+        const myMonthlyHours = p.dailyHours || (globalDailyLessons * workDays);
+        displayHours = `${myMonthlyHours} saat`;
 
         // Yeni havuz dağıtımı: Ortalama Saat Ücreti ile çarp (Havuz / Toplam Havuz Saati)
         gross = myMonthlyHours * teacherHourlyRate;
