@@ -362,6 +362,9 @@
         <button class="menu-btn" id="btnAllExcel">
           <span class="menu-icon">📊</span> İdare Listeleri (Excel)
         </button>
+        <button class="menu-btn" id="btnFinancialExcel">
+          <span class="menu-icon">💰</span> Finansal Durum Listeleri (Excel)
+        </button>
 
         <div style="height:1px; background:#e2e8f0; margin:10px 0;"></div>
 
@@ -1588,9 +1591,82 @@
     XLSX.writeFile(wb, "Idare_Listeleri_Toplu.xlsx");
   }
 
+  function exportFinancialExcel() {
+    const wb = XLSX.utils.book_new();
+
+    const paidList = [];
+    const partialList = [];
+    const nopayList = [];
+    const freeList = [];
+    const siblingList = [];
+
+    // Verileri Filtrele
+    state.students.forEach(s => {
+      const fee = getStudentFee(s);
+      const paid = Number(s.paidTL || 0);
+      const clubs = getClubsForStudent(s);
+
+      const rowData = {
+        "Ad Soyad": s.name,
+        "Sınıf": s.grade + "-" + s.branch,
+        "Veli Telefon": s.parentPhone,
+        "Kulüp (İlk 2 Saat)": clubs.first || "-",
+        "Kulüp (Son 2 Saat)": clubs.last || "-",
+        "Tahakkuk Eden (TL)": fee,
+        "Ödenen (TL)": paid,
+        "Kalan (TL)": fee - paid,
+        "Durum/İndirim": (s.feePolicy === "half") ? "Kardeş İndirimi" : (s.feePolicy === "free" ? "Ücretsiz" : "Tam")
+      };
+
+      if (s.feePolicy === "half") {
+        siblingList.push(rowData);
+      }
+
+      if (fee === 0) {
+        freeList.push(rowData);
+      } else if (paid >= fee) {
+        paidList.push(rowData);
+      } else if (paid > 0 && paid < fee) {
+        partialList.push(rowData);
+      } else if (paid <= 0) {
+        nopayList.push(rowData);
+      }
+    });
+
+    // Sayfaları Ekle
+    if (paidList.length > 0) {
+      const wsPaid = XLSX.utils.json_to_sheet(paidList);
+      XLSX.utils.book_append_sheet(wb, wsPaid, "Ödeme Yapanlar");
+    }
+    if (nopayList.length > 0) {
+      const wsNoPay = XLSX.utils.json_to_sheet(nopayList);
+      XLSX.utils.book_append_sheet(wb, wsNoPay, "Ödeme Yapmayanlar");
+    }
+    if (partialList.length > 0) {
+      const wsPartial = XLSX.utils.json_to_sheet(partialList);
+      XLSX.utils.book_append_sheet(wb, wsPartial, "Kısmi Ödeme Yapanlar");
+    }
+    if (freeList.length > 0) {
+      const wsFree = XLSX.utils.json_to_sheet(freeList);
+      XLSX.utils.book_append_sheet(wb, wsFree, "Ücretsizler");
+    }
+    if (siblingList.length > 0) {
+      const wsSibling = XLSX.utils.json_to_sheet(siblingList);
+      XLSX.utils.book_append_sheet(wb, wsSibling, "Kardeş İndirimi");
+    }
+
+    if (wb.SheetNames.length === 0) {
+      alert("İndirilecek finansal veri bulunamadı.");
+      return;
+    }
+
+    XLSX.writeFile(wb, "Finansal_Durum_Listeleri.xlsx");
+  }
+
   $("btnTeachersWord").onclick = () => exportMergedWord(true);
   $("btnAdminWord").onclick = () => exportMergedWord(false);
   $("btnAllExcel").onclick = exportMergedExcel;
+  if($("btnFinancialExcel")) $("btnFinancialExcel").onclick = exportFinancialExcel;
 
   // --- ✅ GROUP MANAGER UI ---
   const groupModal = $("groupModalOverlay");
@@ -2016,7 +2092,7 @@
     const totalPool = monthlyFee * studentCount;
     $("yeni_salTotalPool").value = formatTL(totalPool);
 
-    // 10- En Yüksek Devlet Memuru Brüt Aylığı: Katsayı X 9500
+    // 10- En Düşük Devlet Memuru Brüt Aylığı: Katsayı X 9500
     const civilServant = coefficient * 9500;
     $("yeni_salCivilServant").value = formatTL(civilServant);
 
