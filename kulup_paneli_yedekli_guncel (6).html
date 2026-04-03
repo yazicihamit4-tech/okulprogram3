@@ -1931,8 +1931,8 @@
         let isUsta = (p.name || "").toLowerCase().includes("usta öğretici");
 
         const myDailyHours = p.dailyHours || globalDailyLessons;
-        displayHours = `${myDailyHours} sa/gün`;
         const myMonthlyHours = myDailyHours * workDays;
+        displayHours = `${myDailyHours} x ${workDays} = ${myMonthlyHours} saat`;
 
         // Yeni havuz dağıtımı: Ortalama Saat Ücreti ile çarp (Havuz / Toplam Havuz Saati)
         gross = myMonthlyHours * teacherHourlyRate;
@@ -2255,7 +2255,7 @@
       const calculatedHourlyRateExcel = window.calculatedDersSaatUcreti || Number($("yeni_dersHourlyRateCalculated").value.replace(" TL","").replace(".","").replace(",",".")) || 0;
 
       // Use the manual student count from the UI if available, fallback to active students count
-      let activeStudents = Number($("salStudentCount").value) || 0;
+      let activeStudents = Number($("yeni_salStudentCount").value) || Number($("salStudentCount").value) || 0;
       if (activeStudents === 0) {
         state.students.forEach(s => {
            if (s.firstGroupId || s.lastGroupId) activeStudents++;
