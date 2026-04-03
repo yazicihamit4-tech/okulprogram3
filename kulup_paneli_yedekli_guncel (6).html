@@ -1885,7 +1885,11 @@
     let totalTeacherHours = 0;
 
     state.personnel.filter(p => p.role === "teacher_pool").forEach(p => {
-       const dh = p.dailyHours || globalDailyLessons;
+       let defaultHours = globalDailyLessons;
+       if ((p.name || "").toLowerCase().includes("kadir şişman") || (p.name || "").toLowerCase().includes("şebnem şişman")) {
+           defaultHours = 4;
+       }
+       const dh = p.dailyHours || defaultHours;
        // We're calculating pool share by individual monthly hours (dh * workDays)
        totalTeacherHours += dh * workDays;
     });
@@ -1927,17 +1931,26 @@
         maxGross = tavanCleaning;
       }
                   else if(p.role === "teacher_pool") {
-        let isCoordinator = (p.name || "").toLowerCase().includes("koordinatör") || (p.name || "").toLowerCase().includes("sevilay ulucan");
+        let isCoordinator = (p.name || "").toLowerCase().includes("koordinatör");
         let isUsta = (p.name || "").toLowerCase().includes("usta öğretici");
+        let isSevilay = (p.name || "").toLowerCase().includes("sevilay ulucan");
 
-        const myDailyHours = p.dailyHours || globalDailyLessons;
+        let defaultHours = globalDailyLessons;
+        if ((p.name || "").toLowerCase().includes("kadir şişman") || (p.name || "").toLowerCase().includes("şebnem şişman")) {
+           defaultHours = 4;
+        }
+        const myDailyHours = p.dailyHours || defaultHours;
         const myMonthlyHours = myDailyHours * workDays;
         displayHours = `${myDailyHours} x ${workDays} = ${myMonthlyHours} saat`;
 
         // Yeni havuz dağıtımı: Ortalama Saat Ücreti ile çarp (Havuz / Toplam Havuz Saati)
         gross = myMonthlyHours * teacherHourlyRate;
 
-        maxGross = isCoordinator ? tavanManager : (isUsta ? tavanUsta : tavanTeacher);
+        if (isSevilay) {
+            maxGross = tavanDeputy; // Müdür Yardımcısı tavanı (2.5)
+        } else {
+            maxGross = isCoordinator ? tavanManager : (isUsta ? tavanUsta : tavanTeacher);
+        }
       }
       else if(p.role === "custom") {
         gross = totalPool * (Number(p.percent) / 100);
@@ -2252,6 +2265,17 @@
       const workDays = Number($("salWorkDays").value) || 20;
 
       const teacherPoolCount = state.personnel.filter(p => p.role === "teacher_pool").length;
+
+      let totalTeacherHours = 0;
+      state.personnel.filter(p => p.role === "teacher_pool").forEach(p => {
+         let defaultHours = dailyHours;
+         if ((p.name || "").toLowerCase().includes("kadir şişman") || (p.name || "").toLowerCase().includes("şebnem şişman")) {
+             defaultHours = 4;
+         }
+         const dh = p.dailyHours || defaultHours;
+         totalTeacherHours += dh * workDays;
+      });
+
       const calculatedHourlyRateExcel = window.calculatedDersSaatUcreti || Number($("yeni_dersHourlyRateCalculated").value.replace(" TL","").replace(".","").replace(",",".")) || 0;
 
       // Use the manual student count from the UI if available, fallback to active students count
@@ -2377,6 +2401,86 @@
 
       const ws = XLSX.utils.aoa_to_sheet(aoa);
 
+      // --- 2. SAYFA: PERSONEL BORDROSU ---
+      const bordroRows = state.personnel.map(p => {
+        let isCoordinator = (p.name || "").toLowerCase().includes("koordinatör");
+        let isSevilay = (p.name || "").toLowerCase().includes("sevilay ulucan");
+        let isUsta = (p.name || "").toLowerCase().includes("usta öğretici");
+
+        let defaultHours = dailyHours;
+        if ((p.name || "").toLowerCase().includes("kadir şişman") || (p.name || "").toLowerCase().includes("şebnem şişman")) {
+           defaultHours = 4;
+        }
+        let myDaily = p.dailyHours || defaultHours;
+        let myMonthly = myDaily * workDays;
+
+        // This is a simplified extraction since the full math is complex to replicate without calling renderSalaries.
+        // But wait! We already calculate everything in renderSalaries. We should just replicate the loop logic quickly.
+
+        let gross = 0;
+        let maxGross = Infinity;
+        if(p.role === "manager") { gross = totalPool * 0.07; maxGross = tavanManager; }
+        else if(p.role === "deputy") { gross = totalPool * 0.05; maxGross = tavanDeputy; }
+        else if(p.role === "accounting") { gross = totalPool * 0.02; maxGross = tavanAccClean; }
+        else if(p.role === "cleaning") { gross = totalPool * 0.04; maxGross = tavanAccClean; }
+        else if(p.role === "teacher_pool") {
+          let teacherPoolTotal = totalPool * 0.55;
+          let teacherHourlyRate = totalTeacherHours > 0 ? (teacherPoolTotal / totalTeacherHours) : 0;
+          gross = myMonthly * teacherHourlyRate;
+          if (isSevilay) {
+              maxGross = tavanDeputy;
+          } else {
+              maxGross = isCoordinator ? tavanManager : (isUsta ? tavanUsta : tavanTeacher);
+          }
+        }
+        else if(p.role === "custom") { gross = totalPool * (Number(p.percent) / 100); }
+
+        if (gross > maxGross) gross = maxGross;
+
+        let sgk = 0; let isizlik = 0;
+        const isSpecificPerson = ["Kadir Şişman", "Şebnem Şişman", "Hülya Pişkin"].includes(p.name);
+        if (isSpecificPerson) {
+          gross = gross / 0.85;
+          sgk = gross * 0.14;
+          isizlik = gross * 0.01;
+        }
+
+        const tax1 = gross * 0.15;
+        const tax2 = gross * 0.00759;
+
+        let exemption = 0;
+        const fullExemptionNames = ["Hülya Pişkin", "Kadir Şişman", "Şebnem Şişman", "Züleyha Danyıldız"];
+        if (fullExemptionNames.includes(p.name)) {
+          exemption = tax1 + tax2;
+        } else if (p.name === "Hamit Yazıcı") {
+          exemption = (tax1 + tax2) / 2;
+        } else if (p.role === "accounting") {
+          exemption = gross * 0.0935;
+        }
+
+        const net = gross - tax1 - tax2 - sgk - isizlik + exemption;
+
+        return {
+          "Personel Adı": p.name,
+          "Görevi": getRoleDesc(p.role, p.percent),
+          "Günlük Saat": (p.role === "teacher_pool") ? myDaily : "-",
+          "Aylık İş Günü": (p.role === "teacher_pool") ? workDays : "-",
+          "Aylık İşlenen Saat": (p.role === "teacher_pool") ? myMonthly : "-",
+          "Brüt Ücret": Number(gross.toFixed(2)),
+          "SGK İşçi (%14)": Number(sgk.toFixed(2)),
+          "İşsizlik İşçi (%1)": Number(isizlik.toFixed(2)),
+          "Gelir Vergisi": Number(tax1.toFixed(2)),
+          "Damga Vergisi": Number(tax2.toFixed(2)),
+          "Vergi Muafiyeti (İade)": Number(exemption.toFixed(2)),
+          "Net Ödenecek": Number(net.toFixed(2))
+        };
+      });
+
+      const wsBordro = XLSX.utils.json_to_sheet(bordroRows);
+
+      // We need to inject this AFTER ws is made and BEFORE writeFile
+      // Let's insert this totalTeacherHours calculation at the top of export
+
       // Merges
       ws['!merges'] = [
         // Row 1: Title (A1:K1) -> r:0, c:0 to r:0, c:10
@@ -2450,6 +2554,7 @@
 
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Bütçe Tablosu");
+      XLSX.utils.book_append_sheet(wb, wsBordro, "Personel Bordro"); // İkinci sayfa olarak detayları ekle
       XLSX.writeFile(wb, `Cocuk_Kulupleri_Butce_Tablosu_${month}.xlsx`);
     };
   }
