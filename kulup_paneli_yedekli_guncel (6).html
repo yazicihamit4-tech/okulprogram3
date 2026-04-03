@@ -760,7 +760,7 @@
           <tr>
             <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0;">Personel Adı</th>
             <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0;">Görevi/Yüzdesi</th>
-            <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:center;">Aylık Saat</th>
+            <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:center;">Günlük Saat</th>
             <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:right;">Brüt (TL)</th>
             <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:right;">SGK (%14)</th>
             <th style="padding:10px; background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:right;">İşsizlik (%1)</th>
@@ -835,8 +835,8 @@
       <input type="number" id="pCustomPercent" placeholder="Örn: 10">
     </div>
     <div class="form-group" id="pDailyHoursGroup">
-      <label>Aylık Toplam Saat (Sadece Havuz İçin)</label>
-      <input type="number" id="pDailyHours" placeholder="Örn: 30, 40 (Boşsa genel ayara göre hesaplanır)">
+      <label>Günlük Saat (Sadece Havuz İçin)</label>
+      <input type="number" id="pDailyHours" placeholder="Örn: 2 veya 4 (Boşsa genel ayar kullanılır)">
     </div>
 
     <div class="modal-footer">
@@ -1885,10 +1885,9 @@
     let totalTeacherHours = 0;
 
     state.personnel.filter(p => p.role === "teacher_pool").forEach(p => {
-       // p.dailyHours represents Monthly Processed Hours now.
-       // If empty, calculate default (globalDailyLessons * workDays)
-       const myMonthlyHours = p.dailyHours || (globalDailyLessons * workDays);
-       totalTeacherHours += myMonthlyHours;
+       const dh = p.dailyHours || globalDailyLessons;
+       // We're calculating pool share by individual monthly hours (dh * workDays)
+       totalTeacherHours += dh * workDays;
     });
 
     const teacherPoolTotal = totalPool * 0.55;
@@ -1931,8 +1930,9 @@
         let isCoordinator = (p.name || "").toLowerCase().includes("koordinatör") || (p.name || "").toLowerCase().includes("sevilay ulucan");
         let isUsta = (p.name || "").toLowerCase().includes("usta öğretici");
 
-        const myMonthlyHours = p.dailyHours || (globalDailyLessons * workDays);
-        displayHours = `${myMonthlyHours} saat`;
+        const myDailyHours = p.dailyHours || globalDailyLessons;
+        displayHours = `${myDailyHours} sa/gün`;
+        const myMonthlyHours = myDailyHours * workDays;
 
         // Yeni havuz dağıtımı: Ortalama Saat Ücreti ile çarp (Havuz / Toplam Havuz Saati)
         gross = myMonthlyHours * teacherHourlyRate;
@@ -2060,7 +2060,7 @@
 
     tfoot.innerHTML = `
       <tr>
-        <td colspan="2" style="padding:10px; text-align:right;">GENEL TOPLAM:</td>
+        <td colspan="3" style="padding:10px; text-align:right;">GENEL TOPLAM:</td>
         <td style="padding:10px; text-align:right;">${formatTL(totalGross)}</td>
         <td style="padding:10px; text-align:right; color:#ef4444;">-${formatTL(window.totalSgk)}</td>
         <td style="padding:10px; text-align:right; color:#ef4444;">-${formatTL(window.totalIsizlik)}</td>
@@ -2254,12 +2254,13 @@
       const teacherPoolCount = state.personnel.filter(p => p.role === "teacher_pool").length;
       const calculatedHourlyRateExcel = window.calculatedDersSaatUcreti || Number($("yeni_dersHourlyRateCalculated").value.replace(" TL","").replace(".","").replace(",",".")) || 0;
 
-      // Calculate Active Students count
-      let activeStudents = 0;
-      state.students.forEach(s => {
-         // students have firstGroupId and lastGroupId based on the program logic
-         if (s.firstGroupId || s.lastGroupId) activeStudents++;
-      });
+      // Use the manual student count from the UI if available, fallback to active students count
+      let activeStudents = Number($("salStudentCount").value) || 0;
+      if (activeStudents === 0) {
+        state.students.forEach(s => {
+           if (s.firstGroupId || s.lastGroupId) activeStudents++;
+        });
+      }
 
       // Bütçe Kalemleri
       const temelGider = totalPool * 0.26;
